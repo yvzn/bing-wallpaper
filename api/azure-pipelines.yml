@@ -1,0 +1,30 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - api
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: 'api/*.csproj'
+    arguments: '--configuration Release'
+- task: AzureFunctionApp@1
+  inputs:
+    azureSubscription: '$(azureSubscription)'
+    appType: 'functionAppLinux'
+    appName: '$(functionAppName)'
+    package: '$(System.DefaultWorkingDirectory)/api/**/*.zip'
+    runtimeStack: 'DOTNET|3.1'
