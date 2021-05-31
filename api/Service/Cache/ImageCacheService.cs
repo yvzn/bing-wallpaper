@@ -12,32 +12,29 @@ namespace Ludeo.BingWallpaper.Service.Cache
 {
     public class ImageCacheService
     {
-        private readonly CloudTable storage;
+        private readonly CloudTable tableStorage;
         private readonly ILogger logger;
 
-        public ImageCacheService(CloudTable storage, ILogger logger)
+        public ImageCacheService(CloudTable tableStorage, ILogger logger)
         {
-            this.storage = storage;
+            this.tableStorage = tableStorage;
             this.logger = logger;
         }
         internal async Task UpdateCacheAsync(ImageArchive imageArchive)
         {
             var cachedImages = CreateCacheImages(imageArchive);
 
-            try
-            {
-                foreach (var cachedImage in cachedImages)
-                {
-                    logger.LogInformation("Update cache with {LatestWallpaperUri} and RowKey={RowKey}", cachedImage.Uri, cachedImage.RowKey);
+            var batchInsert = new TableBatchOperation();
 
-                    var operation = TableOperation.InsertOrReplace(cachedImage);
-                    await storage.ExecuteAsync(operation);
-                }
-            }
-            catch (StorageException ex)
+            foreach (var cachedImage in cachedImages)
             {
-                logger.LogError(ex, "Failed to update cache");
+                logger.LogInformation("Update cache with {LatestWallpaperUri} and RowKey={RowKey}", cachedImage.Uri, cachedImage.RowKey);
+
+                var insertOrReplace = TableOperation.InsertOrReplace(cachedImage);
+                batchInsert.Add(insertOrReplace);
             }
+
+            await tableStorage.ExecuteBatchAsync(batchInsert);
         }
 
         internal IEnumerable<CachedImage> CreateCacheImages(ImageArchive wallpaperImageArchive) =>

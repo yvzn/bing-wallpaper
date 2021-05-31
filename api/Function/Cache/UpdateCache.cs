@@ -17,12 +17,12 @@ namespace Ludeo.BingWallpaper.Function.Cache
         [FunctionName("CacheImages")]
         public static async Task Run(
             [TimerTrigger("0 0 1 * * *")] TimerInfo timerInfo,
-            [Table("ImageCache")] CloudTable storage,
+            [Table("ImageCache")] CloudTable tableStorage,
             ILogger logger)
         {
             var imageArchive = await wallpaperService.GetImageArchiveAsync();
 
-            await new ImageCacheService(storage, logger).UpdateCacheAsync(imageArchive);
+            await new ImageCacheService(tableStorage, logger).UpdateCacheAsync(imageArchive);
         }
     }
 }
