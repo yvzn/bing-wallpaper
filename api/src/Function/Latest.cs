@@ -17,7 +17,7 @@ namespace Ludeo.BingWallpaper.Function
 
         [FunctionName("RedirectToLatest")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "redirection-to/latest")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "redirection-to/latest")] HttpRequest req,
             ILogger logger)
         {
             var latestWallpaperUri = await wallpaperService.GetLatestWallpaperUriAsync();
