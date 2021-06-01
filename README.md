@@ -29,7 +29,7 @@ Install [Azure Storage Emulator](https://docs.microsoft.com/en-us/azure/storage/
 ### Build & run
 
 ```bash
-cd api ↲
+cd api/src ↲
 dotnet clean && dotnet build ↲
 func host start ↲
 ```
