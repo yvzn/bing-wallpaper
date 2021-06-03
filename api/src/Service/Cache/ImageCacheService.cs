@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Model.Bing;
 using Ludeo.BingWallpaper.Model.Cache;
-using Ludeo.BingWallpaper.Service.Bing;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +18,7 @@ namespace Ludeo.BingWallpaper.Service.Cache
         }
         internal async Task UpdateCacheAsync(ImageArchive imageArchive)
         {
-            var cachedImages = CreateCacheImages(imageArchive);
+            var cachedImages = Mapper.Map(imageArchive);
 
             var batchInsert = new TableBatchOperation();
 
@@ -36,18 +32,5 @@ namespace Ludeo.BingWallpaper.Service.Cache
 
             await tableStorage.ExecuteBatchAsync(batchInsert);
         }
-
-        internal IEnumerable<CachedImage> CreateCacheImages(ImageArchive wallpaperImageArchive) =>
-            wallpaperImageArchive.Images.Select(CreateCacheImage);
-
-        private CachedImage CreateCacheImage(Image wallpaperImage) =>
-            new CachedImage
-            {
-                PartitionKey = "cache",
-                RowKey = wallpaperImage.StartDate,
-                Copyright = wallpaperImage.Copyright,
-                Title = wallpaperImage.Title,
-                Uri = new Uri(WallpaperService.bingHomepageUri, wallpaperImage.Url)
-            };
     }
 }
