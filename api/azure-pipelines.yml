@@ -6,10 +6,10 @@
 trigger:
   branches:
     include:
-      - main
+    - main
   paths:
     include:
-      - api
+    - api
 
 pool:
   vmImage: ubuntu-latest
@@ -19,12 +19,12 @@ steps:
   inputs:
     command: 'publish'
     publishWebProjects: false
-    projects: 'api/*.csproj'
+    projects: 'api/src/*.csproj'
     arguments: '--configuration Release'
 - task: AzureFunctionApp@1
   inputs:
     azureSubscription: '$(azureSubscription)'
     appType: 'functionAppLinux'
     appName: '$(functionAppName)'
-    package: '$(System.DefaultWorkingDirectory)/api/**/*.zip'
+    package: '$(System.DefaultWorkingDirectory)/api/src/**/*.zip'
     runtimeStack: 'DOTNET|3.1'
