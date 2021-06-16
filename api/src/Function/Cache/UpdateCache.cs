@@ -10,11 +10,11 @@ namespace Ludeo.BingWallpaper.Function.Cache
 {
     public static class UpdateCache
     {
-        private static HttpClient httpClient = new HttpClient();
+        private static readonly HttpClient httpClient = new HttpClient();
 
-        private static WallpaperService wallpaperService = new WallpaperService(httpClient);
+        private static readonly WallpaperService wallpaperService = new WallpaperService(httpClient);
 
-        [FunctionName("CacheImages")]
+        [FunctionName("UpdateImageCache")]
         public static async Task Run(
             [TimerTrigger("0 0 1 * * *")] TimerInfo timerInfo,
             [Table("ImageCache")] CloudTable tableStorage,

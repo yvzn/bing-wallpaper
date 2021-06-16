@@ -13,21 +13,21 @@ namespace Ludeo.BingWallpaper.Model.Cache
         private static CachedImage Map(Image wallpaperImage) =>
             new CachedImage
             {
-                PartitionKey = "cache",
+                PartitionKey = CachedImage.DefaultPartitionKey,
                 RowKey = MapRowKey(wallpaperImage.StartDate),
                 Copyright = wallpaperImage.Copyright,
                 Title = wallpaperImage.Title,
                 Uri = new Uri(WallpaperService.bingHomepageUri, wallpaperImage.Url)
             };
 
-        private static string MapRowKey(string startDateString)
+        private static string MapRowKey(string? startDateString)
         {
             if (int.TryParse(startDateString, out var startDateInt))
             {
                 // set cache RowKey to have most recent items on top
                 return (99999999 - startDateInt).ToString();
             }
-            return startDateString;
+            return DateTime.Now.ToString("yyyyMMdd");
         }
     }
 }
