@@ -14,7 +14,7 @@ namespace Ludeo.BingWallpaper.Tests.Function.Cache
             [Table("ImageCache")] CloudTable tableStorage,
             ILogger logger)
         {
-            await new ImageCacheService(tableStorage, logger).CleanCacheAsync();
+            await new CleanCacheService(tableStorage, logger).CleanAsync();
         }
     }
 }

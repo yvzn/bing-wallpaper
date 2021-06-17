@@ -22,7 +22,7 @@ namespace Ludeo.BingWallpaper.Function.Cache
         {
             var imageArchive = await wallpaperService.GetImageArchiveAsync();
 
-            await new ImageCacheService(tableStorage, logger).UpdateCacheAsync(imageArchive);
+            await new UpdateCacheService(tableStorage, logger).UpdateAsync(imageArchive);
         }
     }
 }
