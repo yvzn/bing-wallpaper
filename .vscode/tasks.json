@@ -2,7 +2,7 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "clean",
+			"label": "api clean",
 			"command": "dotnet",
 			"args": [
 				"clean",
@@ -12,11 +12,11 @@
 			"type": "process",
 			"problemMatcher": "$msCompile",
 			"options": {
-				"cwd": "${workspaceFolder}/api"
+				"cwd": "${workspaceFolder}/api/src"
 			}
 		},
 		{
-			"label": "build",
+			"label": "api build",
 			"command": "dotnet",
 			"args": [
 				"build",
@@ -24,18 +24,26 @@
 				"/consoleloggerparameters:NoSummary"
 			],
 			"type": "process",
-			"dependsOn": "clean",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
+			"dependsOn": "api clean",
+			"group": "build",
 			"problemMatcher": "$msCompile",
 			"options": {
-				"cwd": "${workspaceFolder}/api"
+				"cwd": "${workspaceFolder}/api/src"
 			}
 		},
 		{
-			"label": "clean release",
+			"label": "api start",
+			"type": "func",
+			"dependsOn": "api build",
+			"options": {
+				"cwd": "${workspaceFolder}/api/src/bin/Debug/netcoreapp3.1"
+			},
+			"command": "host start",
+			"isBackground": true,
+			"problemMatcher": "$func-dotnet-watch"
+		},
+		{
+			"label": "api clean publish",
 			"command": "dotnet",
 			"args": [
 				"clean",
@@ -51,7 +59,7 @@
 			}
 		},
 		{
-			"label": "publish",
+			"label": "api publish",
 			"command": "dotnet",
 			"args": [
 				"publish",
@@ -66,16 +74,6 @@
 			"options": {
 				"cwd": "${workspaceFolder}/api"
 			}
-		},
-		{
-			"type": "func",
-			"dependsOn": "build",
-			"options": {
-				"cwd": "${workspaceFolder}/api/src/bin/Debug/netcoreapp3.1"
-			},
-			"command": "host start",
-			"isBackground": true,
-			"problemMatcher": "$func-dotnet-watch"
 		}
 	]
 }
