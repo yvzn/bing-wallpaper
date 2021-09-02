@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Ludeo.BingWallpaper.Model.Bing;
 using Ludeo.BingWallpaper.Model.Cache;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
@@ -49,10 +48,7 @@ namespace Ludeo.BingWallpaper.Service.Cache
 
         private async IAsyncEnumerable<string> GetOutdatedCacheEntries()
         {
-            var partitionKeyFilter = TableQuery.GenerateFilterCondition(
-                nameof(CachedImage.PartitionKey),
-                QueryComparisons.Equal,
-                CachedImage.DefaultPartitionKey);
+            var partitionKeyFilter = CacheService.GeneratePartitionKeyFilter();
 
             var allCacheEntriesQuery = new TableQuery<CachedImage>()
                 .Where(partitionKeyFilter)

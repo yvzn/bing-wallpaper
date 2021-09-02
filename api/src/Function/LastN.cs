@@ -1,7 +1,6 @@
-using System;
-using System.Net.Http;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Ludeo.BingWallpaper.Service.Bing;
 using Ludeo.BingWallpaper.Service.Cache;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,27 +11,34 @@ using Microsoft.Extensions.Logging;
 
 namespace Ludeo.BingWallpaper.Function
 {
-	public static class Latest
+	public static class LastN
 	{
-		[FunctionName("RedirectToLatest")]
+		[FunctionName("GetLastNimages")]
 		public static async Task<IActionResult> RunAsync(
-			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "redirection-to/latest")]
+			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "last/{count:int?}")]
 			HttpRequest req,
+			int? count,
 			[Table("ImageCache")]
 			CloudTable tableStorage,
 			ILogger logger)
 		{
-			var latestImageFromCache = new CacheService(tableStorage, logger).GetLatestImagesAsync(1);
+			var latestImageFromCache = new CacheService(tableStorage, logger).GetLatestImagesAsync(count.GetValueOrDefault(10));
+
+			var result = new List<object>();
 
 			await foreach (var cachedImage in latestImageFromCache)
 			{
-				var latestWallpaperUri = cachedImage.Uri;
-
-				if (!(latestWallpaperUri is null))
+				result.Add(new
 				{
-					logger.LogInformation("Redirecting to {LatestWallpaperUri}", latestWallpaperUri);
-					return new RedirectResult(latestWallpaperUri);
-				}
+					Copyright = cachedImage.Copyright,
+					Title = cachedImage.Title,
+					Uri = cachedImage.Uri
+				});
+			}
+
+			if (result.Any())
+			{
+				return new OkObjectResult(result);
 			}
 
 			return new NotFoundResult();

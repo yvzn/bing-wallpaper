@@ -8,21 +8,27 @@ using Microsoft.Extensions.Logging;
 
 namespace Ludeo.BingWallpaper.Function.Cache
 {
-    public static class UpdateCache
-    {
-        private static readonly HttpClient httpClient = new HttpClient();
+	public static class UpdateCache
+	{
+		private static readonly HttpClient httpClient = new HttpClient();
 
-        private static readonly WallpaperService wallpaperService = new WallpaperService(httpClient);
+		private static readonly WallpaperService wallpaperService = new WallpaperService(httpClient);
 
-        [FunctionName("UpdateImageCache")]
-        public static async Task Run(
-            [TimerTrigger("0 0 1 * * *")] TimerInfo timerInfo,
-            [Table("ImageCache")] CloudTable tableStorage,
-            ILogger logger)
-        {
-            var imageArchive = await wallpaperService.GetImageArchiveAsync();
+		[FunctionName("UpdateImageCache")]
+		public static async Task RunAsync(
+			[TimerTrigger("0 0 1 * * *"
+#if DEBUG
+				, RunOnStartup=true
+#endif
+			)]
+			TimerInfo timerInfo,
+			[Table("ImageCache")]
+			CloudTable tableStorage,
+			ILogger logger)
+		{
+			var imageArchive = await wallpaperService.GetImageArchiveAsync();
 
-            await new UpdateCacheService(tableStorage, logger).UpdateAsync(imageArchive);
-        }
-    }
+			await new UpdateCacheService(tableStorage, logger).UpdateAsync(imageArchive);
+		}
+	}
 }
