@@ -15,7 +15,7 @@ namespace Ludeo.BingWallpaper.Function
 	{
 		[FunctionName("GetLastNimages")]
 		public static async Task<IActionResult> RunAsync(
-			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "last/{count:int?}")]
+			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "last/{count:int?}")]
 			HttpRequest req,
 			int? count,
 			[Table("ImageCache")]

@@ -16,7 +16,7 @@ namespace Ludeo.BingWallpaper.Function
 	{
 		[FunctionName("RedirectToLatest")]
 		public static async Task<IActionResult> RunAsync(
-			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "redirection-to/latest")]
+			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "redirection-to/latest")]
 			HttpRequest req,
 			[Table("ImageCache")]
 			CloudTable tableStorage,
