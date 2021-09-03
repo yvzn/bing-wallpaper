@@ -6,7 +6,8 @@ using Ludeo.BingWallpaper.Service.Bing;
 
 namespace Ludeo.BingWallpaper.Model.Cache
 {
-	internal static class Mapper {
+	internal static class Mapper
+	{
 		internal static IEnumerable<CachedImage> Map(ImageArchive wallpaperImageArchive) =>
 			wallpaperImageArchive.Images.Select(Map);
 
@@ -17,7 +18,7 @@ namespace Ludeo.BingWallpaper.Model.Cache
 				RowKey = MapRowKey(wallpaperImage.StartDate),
 				Copyright = wallpaperImage.Copyright,
 				Title = wallpaperImage.Title,
-				Uri = new Uri(WallpaperService.bingHomepageUri, wallpaperImage.Url).AbsoluteUri.ToString()
+				Uri = MapUri(wallpaperImage.UrlBase),
 			};
 
 		private static string MapRowKey(string? startDateString)
@@ -29,5 +30,8 @@ namespace Ludeo.BingWallpaper.Model.Cache
 			}
 			return DateTime.Now.ToString("yyyyMMdd");
 		}
+
+		private static string MapUri(string? relativeUrl) =>
+			new Uri(WallpaperService.bingHomepageUri, relativeUrl).AbsoluteUri.ToString();
 	}
 }
