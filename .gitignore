@@ -1,0 +1,17 @@
+
+.DS_Store
+
+# APP
+app/.env.local
+app/.env.production
+package-lock.json
+node_modules/
+dist/
+dist-ssr/
+
+# API
+.vs/
+api/src/local.settings.json
+*.suo
+bin/
+obj/
