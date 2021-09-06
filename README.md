@@ -68,6 +68,66 @@ Then open http://localhost:7071/api/redirection-to/latest in browser of choice.
 
 <kbd>Ctrl + C</kbd> to stop the app.
 
+## Run on Azure
+
+### Requirements
+
+- A valid *Azure subscription*
+- A *resource group*
+- An *Function app*
+- A *storage account* (can be the same storage account as the *Function app*)
+
+### Front-End
+
+The front-end is deployed as a static website within selected *storage account*:
+- The *storage account* has to be [general-purpose v2](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-upgrade?tabs=azure-portal)
+- *Static website* hosting has to be [enabled](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-static-website-how-to?tabs=azure-portal#enable-static-website-hosting)
+
+#### Build and upload
+
+```bash
+cd app ↲
+npm run build ↲
+```
+
+Then upload the files in `dist` folder to the *storage account* `$web` container via method of choice (Azure Portal, `AzCopy`, etc.) or via CI/CD
+
+### Back-End
+
+The back-end is deployed to the *Function app* via method of choice (Azure Function Core Tools, Visual Studio, etc.) or via CI/CD
+
+#### Settings
+
+Make sure CORS is setup properly for the front-end to be able to call the back-end.
+
+#### Build and upload
+
+```bash
+cd api/src ↲
+dotnet publish --configuration Release
+```
+
+Then upload the files in `bin/Release/netcoreapp3.1` folder to the *Function app*
+
+### CI/CD
+
+Pipeline definitions are provided for integration in [Azure DevOps](https://dev.azure.com)
+- `app/azure-pipelines.yml` for the front-end
+- `api/azure-pipelines.yml` for the back-end
+
+#### Requirements
+
+Create a *variable group* named `Azure` in *Azure DevOps' pipelines*.
+
+Add the following variables:
+- `azureSubscription` : Name of the *subscription* to deploy to
+- `functionAppName`: Name of the *Function app*
+- `storageAccountName`: Name of the *storage account*
+- `apiUrl`: base URL of the *Function app*
+
+Make sure your *Azure DevOps principal* has write access to the *storage account*:
+- Add the role *Storage Blob Data Contributor* if necessary
+
 ## License
 
 Licensed under [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/)
@@ -83,6 +143,6 @@ This project uses open-source, third party software:
 - [ViteJS](https://github.com/vitejs/vite): MIT License, Copyright (c) 2019-present Evan You & Vite Contributors
 - [React](): MIT License, Copyright (c) Facebook, Inc. and its affiliates.
 
-This project uses graphics under Creative Commons:
+This project uses graphics under Creative Commons licence:
 
-- Fav icon by [Oh Rian](https://thenounproject.com/ohrianid/): Creative Commons (CCBY) license
+- Fav icon by [Oh Rian](https://thenounproject.com/ohrianid/): Creative Commons license  (CCBY)
