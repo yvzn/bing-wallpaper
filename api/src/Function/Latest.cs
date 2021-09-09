@@ -26,7 +26,7 @@ namespace Ludeo.BingWallpaper.Function
 
 			await foreach (var cachedImage in latestImageFromCache)
 			{
-				var latestWallpaperUri = cachedImage.Uri;
+				var latestWallpaperUri = $"{cachedImage.Uri}_1920x1080.jpg";
 
 				if (!(latestWallpaperUri is null))
 				{

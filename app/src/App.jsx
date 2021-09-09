@@ -100,32 +100,7 @@ function ImageCopyright({ image }) {
 }
 
 function App() {
-	return (
-		<>
-			<Heading />
-			<Wallpapers />
-			<Footnotes />
-		</>
-	);
-}
-
-function Heading() {
-	return (
-		<header>
-			<h1>Wallpapers!</h1>
-		</header>
-	);
-}
-
-function Footnotes() {
-	return (
-		<footer>
-			<small>
-				Images from <a href="https://bing.com">Bing.com</a>. Use of
-				images restricted to wallpaper only (as per Bing terms of use).
-			</small>
-		</footer>
-	);
+	return <Wallpapers />;
 }
 
 export default App;

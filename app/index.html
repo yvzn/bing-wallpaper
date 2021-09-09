@@ -19,13 +19,40 @@
 <head>
 	<meta charset="UTF-8" />
 	<link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
+	<link rel="stylesheet" href="/src/index.css" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<base target="_blank" />
 	<title>Wallpapers!</title>
 </head>
 
 <body>
-	<main></main>
+	<header>
+		<h1>Wallpapers!</h1>
+	</header>
+	<main>
+		<noscript>
+			<section>
+				<article>
+					<h2><a href=import.meta.env.VITE_API_REDIRECTION_LATEST_URL>Latest wallpaper</a></h2>
+					<p><a href=import.meta.env.VITE_API_REDIRECTION_LATEST_URL><img
+								src=import.meta.env.VITE_API_REDIRECTION_LATEST_URL alt="Latest wallpaper from Bing.com"
+								loading="lazy"></a></p>
+					<footer>This image has <a href="https://bing.com">copyrights and terms of use</a>
+					</footer>
+				</article>
+				<article>
+					<h2>Some features are disabled</h2>
+					<p>You can view more images by enabling scripting in your browser, Javascript or ECMAScript.</p>
+				</article>
+			</section>
+		</noscript>
+	</main>
+	<footer>
+		<small>
+			Images from <a href="https://bing.com">Bing.com</a>. Use of
+			images restricted to wallpaper only (as per Bing terms of use).
+		</small>
+	</footer>
 	<script type="module" src="/src/main.jsx"></script>
 </body>
 
