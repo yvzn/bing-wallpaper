@@ -102,6 +102,7 @@ section {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--space-large);
+	justify-content: center;
 	padding: var(--space-large) var(--space-large) calc(var(--space-large) * 20)
 		var(--space-large);
 }
@@ -114,7 +115,8 @@ article {
 	transition: transform 0.1s ease-out;
 }
 
-article:hover {
+article:hover,
+article:focus-within {
 	transform: scale(1.05);
 }
 

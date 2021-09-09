@@ -17,6 +17,8 @@
 import React from "react";
 import Skeleton from "react-loading-skeleton";
 
+import getWallpapers from "./service";
+
 class Wallpapers extends React.Component {
 	constructor() {
 		const self = super();
@@ -66,7 +68,7 @@ function ImagePreview({ image }) {
 			{image.status === "loading" && <Skeleton />}
 			{image.status === "loaded" && (
 				<a href={image.url}>
-					<img src={image.url} alt={image.title} />
+					<img src={image.thumbnail} alt={image.title} />
 				</a>
 			)}
 		</p>
@@ -89,46 +91,6 @@ function ImageCopyright({ image }) {
 			{image.status === "loaded" && image.copyright}
 		</footer>
 	);
-}
-
-function getWallpapers() {
-	// Invoke-WebRequest 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1' | Select-Object -ExpandProperty Content | ConvertFrom-Json | Select-Object -ExpandProperty images | Select-Object url, copyright, title | ConvertTo-Json
-	const images = [
-		{
-			url: "https://www.bing.com/th?id=OHR.MontChoisy_FR-FR8228486569_640x360.jpg&rf=LaDigue_640x360.jpg&pid=hp",
-			copyright:
-				"Mont Choisy Beach, plage de l’île Maurice (© Robert Harding World Imagery/Offset by Shutterstock)",
-			title: "La force de Maurice",
-		},
-		{
-			url: "https://www.bing.com/th?id=OHR.NgoDong_FR-FR2655491835_640x360.jpg&rf=LaDigue_640x360.jpg&pid=hp",
-			copyright:
-				"Barques naviguant entre les rizières sur la rivière Ngo Dong, Province de Ninh Binh, Vietnam (© Jeremy Woodhouse/Getty Images)",
-			title: "Rivière entre rizières",
-		},
-		{
-			url: "https://www.bing.com/th?id=OHR.July14_FR-FR2238069479_640x360.jpg&rf=LaDigue_640x360.jpg&pid=hp",
-			copyright:
-				"La Patrouille de France survolant l’Arc de Triomphe lors des célébrations du 14 juillet 2020 (© REUTERS/Gonzalo Fuentes)",
-			title: "Du bleu, du blanc et du rouge",
-		},
-		{
-			url: "https://www.bing.com/th?id=OHR.MooseVelvet_FR-FR1300863957_640x360.jpg&rf=LaDigue_640x360.jpg&pid=hp",
-			copyright:
-				"Élan traversant un étang au pied du mont Moran, Parc national de Grand Teton, Wyoming, États-Unis (© Jim Stamates/Minden Pictures)",
-			title: "Dans l’œil d’un artiste",
-		},
-		{
-			url: "https://www.bing.com/th?id=OHR.LighthouseWave_FR-FR0420098693_640x360.jpg&rf=LaDigue_640x360.jpg&pid=hp",
-			copyright:
-				"Vagues s’écrasant sur le phare de Felgueiras, Porto, Portugal (© Stephan Zirwes/Offset by Shutterstock)",
-			title: "Bien arrivé",
-		},
-	];
-
-	return Promise.resolve(images);
-	// replace previous line to simulate loading from a remote source
-	// return new Promise((resolve) => setTimeout(resolve, 500, images));
 }
 
 function App() {

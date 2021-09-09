@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<!--
+/*
    Copyright 2021 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +12,26 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
--->
-<html lang="en">
+*/
 
-<head>
-	<meta charset="UTF-8" />
-	<link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<base target="_blank" />
-	<title>Wallpapers!</title>
-</head>
+const numberOfImages = 10;
+const defaultResolutions = {
+	low: "640x360",
+	full: "1920x1080"
+}
 
-<body>
-	<main></main>
-	<script type="module" src="/src/main.jsx"></script>
-</body>
+async function getWallpapers() {
+	const lastWallpapersUrl = `${import.meta.env.VITE_API_URL}/api/last/${numberOfImages}`;
 
-</html>
+	const response = await fetch(lastWallpapersUrl);
+	const json = await response.json();
+
+	return json.map(image => ({
+		title: image.title,
+		copyright: image.copyright,
+		thumbnail: `${image.uri}_${defaultResolutions.low}.jpg`,
+		url: `${image.uri}_${defaultResolutions.full}.jpg`,
+	}))
+}
+
+export default getWallpapers;
