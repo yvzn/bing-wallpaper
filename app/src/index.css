@@ -16,26 +16,21 @@
 
 * {
 	box-sizing: border-box;
+
 	/* https://css-tricks.com/snippets/css/font-stacks/ */
 	font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans",
-		"Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref",
-		sans-serif;
+		"Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
 	margin: 0;
 	padding: 0;
-}
 
-* {
 	--space: 0.5rem;
 	--space-small: calc(var(--space) / 2);
 	--space-large: calc(var(--space) * 2);
-}
 
-* {
 	/* https://web.dev/building-a-color-scheme/ */
 	--brand-hue: 199;
 	--brand-saturation: 100%;
 	--brand-lightness: 47%;
-
 	--brand-light: hsl(
 		var(--brand-hue) var(--brand-saturation) var(--brand-lightness)
 	);
@@ -48,9 +43,7 @@
 	--surface-shadow-light: var(--brand-hue) 10%
 		calc(var(--brand-lightness) / 5);
 	--shadow-strength-light: 0.01;
-}
 
-* {
 	/* https://web.dev/building-a-color-scheme/#rad-shadow */
 	--rad-shadow: 0 2.8px 2.2px
 			hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.03)),
@@ -81,9 +74,9 @@ body {
 	background-color: var(--surface2);
 	color: var(--text1);
 	height: 100vh;
-	width: 100vw;
-	overflow-y: auto;
 	overflow-x: hidden;
+	overflow-y: auto;
+	width: 100vw;
 }
 
 header {
@@ -107,10 +100,14 @@ section {
 		var(--space-large);
 }
 
+a {
+	color: var(--brand);
+}
+
 article {
+	background-color: var(--surface2);
 	border-radius: var(--space);
 	box-shadow: var(--rad-shadow);
-	background-color: var(--surface2);
 	padding: var(--space);
 	transition: transform 0.1s ease-out;
 }
@@ -121,19 +118,19 @@ article:focus-within {
 }
 
 article h2 {
-	height: 2rem;
 	font-size: initial;
+	height: 2rem;
 }
 
 article p {
-	width: 15rem;
 	height: 10rem;
 	text-align: center;
+	width: 15rem;
 }
 
 article p img {
-	max-width: 15rem;
 	max-height: 10rem;
+	max-width: 15rem;
 }
 
 article a {
@@ -145,34 +142,31 @@ article h2 a {
 	border-bottom: solid 1px var(--surface4);
 }
 
+main > footer {
+	background-color: var(--surface1);
+	bottom: 0;
+	padding: var(--space-large);
+	position: fixed;
+	text-align: center;
+	width: 100%;
+}
+
 article > footer {
-	opacity: 0;
-	transition: opacity 0.2s ease-out;
-	font-size: initial;
-	position: absolute;
-	width: 15rem;
-	padding: var(--space);
-	border-radius: var(--space);
 	background-color: var(--surface3);
-	color: var(--text2);
-	transform: translateY(calc(var(--space-large) * -1));
-	--shadow-strength: calc(var(--shadow-strength-light) / 2);
+	border-radius: var(--space);
 	box-shadow: var(--rad-shadow);
+	color: var(--text2);
+	font-size: initial;
+	opacity: 0;
+	padding: var(--space);
+	position: absolute;
+	transform: translateY(calc(var(--space-large) * -1));
+	transition: opacity 0.2s ease-out;
+	width: 15rem;
+
+	--shadow-strength: calc(var(--shadow-strength-light) / 2);
 }
 
 article:hover > footer {
 	opacity: 1;
-}
-
-main > footer {
-	background-color: var(--surface1);
-	padding: var(--space-large);
-	text-align: center;
-	position: fixed;
-	bottom: 0;
-	width: 100%;
-}
-
-a {
-	color: var(--brand);
 }

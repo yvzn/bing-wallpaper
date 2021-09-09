@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json.schemastore.org/eslintrc",
+	"env": {
+		"browser": true,
+		"es2021": true
+	},
+	"extends": [
+		"eslint:recommended",
+		"prettier"
+	],
+	"ignorePatterns": [
+		"node_modules",
+		"vite.config.js",
+		"dist",
+		"dist-ssr"
+	],
+	"parserOptions": {
+		"ecmaVersion": 12,
+		"sourceType": "module"
+	},
+	"rules": {}
+}
