@@ -67,8 +67,12 @@ function ImagePreview({ image }) {
 		<p>
 			{image.status === "loading" && <Skeleton />}
 			{image.status === "loaded" && (
-				<a href={image.url}>
-					<img src={image.thumbnail} alt={image.title} />
+				<a href={image.large.url}>
+					<img
+						src={image.thumbnail.url}
+						alt={image.title}
+						loading="lazy"
+					/>
 				</a>
 			)}
 		</p>
@@ -79,7 +83,9 @@ function ImageTitle({ image }) {
 	return (
 		<h2>
 			{image.status === "loading" && <Skeleton />}
-			{image.status === "loaded" && <a href={image.url}>{image.title}</a>}
+			{image.status === "loaded" && (
+				<a href={image.large.url}>{image.title}</a>
+			)}
 		</h2>
 	);
 }

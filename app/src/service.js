@@ -16,22 +16,28 @@
 
 const numberOfImages = 10;
 const defaultResolutions = {
-	low: "640x360",
-	full: "1920x1080"
-}
+	low: { width: 640, height: 360 },
+	full: { width: 1920, height: 1080 },
+};
 
 async function getWallpapers() {
-	const lastWallpapersUrl = `${import.meta.env.VITE_API_URL}/api/last/${numberOfImages}`;
+	const lastWallpapersUrl = `${
+		import.meta.env.VITE_API_URL
+	}/api/last/${numberOfImages}`;
 
 	const response = await fetch(lastWallpapersUrl);
 	const json = await response.json();
 
-	return json.map(image => ({
+	return json.map((image) => ({
 		title: image.title,
 		copyright: image.copyright,
-		thumbnail: `${image.uri}_${defaultResolutions.low}.jpg`,
-		url: `${image.uri}_${defaultResolutions.full}.jpg`,
-	}))
+		thumbnail: {
+			url: `${image.uri}_${defaultResolutions.low.width}x${defaultResolutions.low.height}.jpg`,
+		},
+		large: {
+			url: `${image.uri}_${defaultResolutions.full.width}x${defaultResolutions.full.height}.jpg`,
+		},
+	}));
 }
 
 export default getWallpapers;
