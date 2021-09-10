@@ -30,7 +30,7 @@
 	/* https://web.dev/building-a-color-scheme/ */
 	--brand-hue: 199;
 	--brand-saturation: 100%;
-	--brand-lightness: 47%;
+	--brand-lightness: 29%;
 	--brand-light: hsl(
 		var(--brand-hue) var(--brand-saturation) var(--brand-lightness)
 	);
