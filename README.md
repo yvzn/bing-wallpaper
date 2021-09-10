@@ -4,6 +4,8 @@ An application to display the latest wallpapers from [Bing.com](https://www.bing
 
 **Use of these images is restricted to wallpaper only**, as per Bing terms of use.
 
+[Demo website here](https://bingwallpaper.z28.web.core.windows.net/)
+
 ## How?
 
 The front-end is a [React](https://reactjs.org/) website packaged with [ViteJS](https://vitejs.dev/)
@@ -31,6 +33,15 @@ npm run dev
 Then open http://localhost:3000/ in browser of choice.
 
 <kbd>Ctrl + C</kbd> to exit
+
+Legacy browser support is only available when running production build preview:
+
+```bash
+npm run build
+npm run serve
+```
+
+Then open http://localhost:5000/ in browser of choice.
 
 ### Run the back-end
 
