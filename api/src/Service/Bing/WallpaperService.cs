@@ -10,7 +10,7 @@ namespace Ludeo.BingWallpaper.Service.Bing
     internal class WallpaperService
     {
         internal static Uri bingHomepageUri = new Uri("https://www.bing.com");
-        private static Uri imageArchiveUri = new Uri(bingHomepageUri, "HPImageArchive.aspx?format=js&idx=0&n=1");
+        private static Uri imageArchiveUri = new Uri(bingHomepageUri, "HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-GB");
         private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
         private readonly HttpClient httpClient;
