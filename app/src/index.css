@@ -120,7 +120,7 @@ header h1 {
 		"Nimbus Roman No9 L Regular", Times, "Times New Roman", serif;
 }
 
-section {
+main {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--space-large);

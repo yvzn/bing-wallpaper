@@ -43,11 +43,11 @@ class Wallpapers extends React.Component {
 
 	render() {
 		return (
-			<section>
+			<>
 				{this.state.images.map((image, index) => (
 					<WallpaperCard image={image} key={index} />
 				))}
-			</section>
+			</>
 		);
 	}
 }

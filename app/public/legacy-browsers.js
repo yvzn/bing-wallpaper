@@ -14,19 +14,20 @@
    limitations under the License.
 */
 
-(function () {
-	var imageRenderingSuccessful =
+(function showLegacyBrowserContent() {
+	var renderingSuccessful =
 		document.getElementsByTagName("article").length > 1;
-	if (imageRenderingSuccessful) {
+	if (renderingSuccessful) {
 		return;
 	}
 
 	var noScriptTag = document.getElementsByTagName("noscript")[0];
-	var mainTag = document.getElementsByTagName("main")[0];
+	var contentForNoScriptBrowsers = noScriptTag.innerText;
 
-	mainTag.innerHTML = noScriptTag.innerText;
+	var mainContentTag = document.getElementsByTagName("main")[0];
+	mainContentTag.innerHTML = contentForNoScriptBrowsers;
 
-	var secondParagraphTag = mainTag.getElementsByTagName("p")[1];
-	secondParagraphTag.innerText =
-		"More images available in a newer browser, like Firefox or Chrome.";
+	var explanatoryTextTag = mainContentTag.getElementsByTagName("strong")[0];
+	explanatoryTextTag.innerText =
+		"Updating to a newer browser, like Firefox or Chrome, will display more wallpapers.";
 })();
