@@ -47,9 +47,7 @@
 	--shadow-strength-light: 0.01;
 
 	/* dark mode */
-	--brand-dark: hsl(
-		var(--brand-hue) calc(var(--brand-saturation) / 2) 52%
-	);
+	--brand-dark: hsl(var(--brand-hue) calc(var(--brand-saturation) / 2) 52%);
 	--text1-dark: hsl(var(--brand-hue) 15% 85%);
 	--text2-dark: hsl(var(--brand-hue) 5% 65%);
 	--surface1-dark: hsl(var(--brand-hue) 10% 10%);
@@ -198,4 +196,31 @@ article > footer {
 
 article:hover > footer {
 	opacity: 1;
+}
+
+progress {
+	animation: animate-progress 1s ease-in-out infinite;
+	appearance: none;
+	border: none;
+	height: 75%;
+	opacity: 1;
+	width: 100%;
+}
+
+@keyframes animate-progress {
+	50% {
+		opacity: 0.5;
+	}
+}
+
+progress,
+progress::-webkit-progress-bar {
+	background-color: var(--surface1);
+	border-radius: calc(var(--space) / 2);
+}
+
+progress::-webkit-progress-value,
+progress::-moz-progress-bar {
+	background-color: var(--surface1);
+	border-radius: calc(var(--space) / 2);
 }

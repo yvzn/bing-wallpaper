@@ -15,14 +15,17 @@
 */
 
 import React from "react";
-import Skeleton from "react-loading-skeleton";
 
 import getWallpapers from "./service";
+
+export default function App() {
+	return <Wallpapers />;
+}
 
 class Wallpapers extends React.Component {
 	constructor() {
 		const self = super();
-		self.state = { images: new Array(4).fill({ status: "loading" }) };
+		self.state = { images: new Array(8).fill({ status: "loading" }) };
 	}
 
 	componentDidMount() {
@@ -99,8 +102,6 @@ function ImageCopyright({ image }) {
 	);
 }
 
-function App() {
-	return <Wallpapers />;
+function Skeleton() {
+	return <progress max="1" />;
 }
-
-export default App;
