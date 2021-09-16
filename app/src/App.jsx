@@ -16,7 +16,7 @@
 
 import React from "react";
 
-import getWallpapers from "./service";
+import getWallpapers, { numberOfImages } from "./service";
 
 export default function App() {
 	return <Wallpapers />;
@@ -25,7 +25,9 @@ export default function App() {
 class Wallpapers extends React.Component {
 	constructor() {
 		const self = super();
-		self.state = { images: new Array(8).fill({ status: "loading" }) };
+		self.state = {
+			images: new Array(numberOfImages).fill({ status: "loading" }),
+		};
 	}
 
 	componentDidMount() {
@@ -85,7 +87,7 @@ function ImagePreview({ image }) {
 function ImageTitle({ image }) {
 	return (
 		<h2>
-			{image.status === "loading" && <Skeleton />}
+			{image.status === "loading" && <Skeleton>Loading...</Skeleton>}
 			{image.status === "loaded" && (
 				<a href={image.large.url}>{image.title}</a>
 			)}
@@ -94,14 +96,9 @@ function ImageTitle({ image }) {
 }
 
 function ImageCopyright({ image }) {
-	return (
-		<footer>
-			{image.status === "loading" && <Skeleton />}
-			{image.status === "loaded" && image.copyright}
-		</footer>
-	);
+	return image.status === "loaded" && <footer>{image.copyright}</footer>;
 }
 
-function Skeleton() {
-	return <progress max="1" />;
+function Skeleton({ children }) {
+	return <progress max="1">{children}</progress>;
 }

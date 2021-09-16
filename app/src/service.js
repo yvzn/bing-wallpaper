@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const numberOfImages = 10;
+export const numberOfImages = 10;
 const defaultResolutions = {
 	low: { width: 640, height: 360 },
 	full: { width: 1920, height: 1080 },
