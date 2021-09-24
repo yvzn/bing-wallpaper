@@ -139,6 +139,12 @@ article {
 	transition: transform 0.1s ease-out;
 }
 
+@media (prefers-reduced-motion) {
+	article {
+		transition: none;
+	}
+}
+
 article:hover,
 article:focus-within {
 	transform: scale(1.05);
@@ -147,6 +153,10 @@ article:focus-within {
 article h2 {
 	font-size: initial;
 	height: 2rem;
+	max-width: 15rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 article p {
@@ -191,11 +201,17 @@ article > footer {
 	transition: opacity 0.2s ease-out;
 	width: 15rem;
 
-	--shadow-strength: calc(var(--shadow-strength-light) / 2);
+	--shadow-strength: calc(var(--shadow-strength-light) / 100);
 }
 
 article:hover > footer {
 	opacity: 1;
+}
+
+@media (prefers-reduced-motion) {
+	article > footer {
+		transition: none;
+	}
 }
 
 progress {
@@ -210,6 +226,12 @@ progress {
 @keyframes animate-progress {
 	50% {
 		opacity: 0.5;
+	}
+}
+
+@media (prefers-reduced-motion) {
+	progress {
+		animation: none;
 	}
 }
 
