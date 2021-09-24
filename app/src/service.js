@@ -16,7 +16,7 @@
 
 export const numberOfImages = 10;
 const defaultResolutions = {
-	low: { width: 640, height: 360 },
+	low: { width: 320, height: 180 },
 	full: { width: 1920, height: 1080 },
 };
 
