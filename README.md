@@ -1,14 +1,14 @@
 # Latest Bing Wallpaper
 
-An application to display the latest wallpapers from [Bing.com](https://www.bing.com/).
+A web application to display the latest wallpapers from [Bing.com](https://www.bing.com/). Useful when neither BingWallpaper app or BingDesktop app are available.
 
 **Use of these images is restricted to wallpaper only**, as per Bing terms of use.
 
-[Demo website here](https://bingwallpaper.z28.web.core.windows.net/)
+⇒ [Demo here](https://bingwallpaper.z28.web.core.windows.net/)
 
 ## How?
 
-The front-end is a [React](https://reactjs.org/) website packaged with [ViteJS](https://vitejs.dev/)
+The front-end is a [React](https://reactjs.org/) website packaged with [ViteJS](https://vitejs.dev/).
 
 The back-end is a serverless [Azure Function app](https://docs.microsoft.com/en-us/azure/azure-functions/).
 
@@ -43,27 +43,50 @@ npm run serve
 
 Then open http://localhost:5000/ in browser of choice.
 
+<kbd>Ctrl + C</kbd> to exit
+
+### Configure a database for the back-end
+
+Some form of storage is required to store and cache the wallpaper URIs and avoid multiple requests to Bing.com.
+
+An emulator can be used to run the database locally (such as [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=npm), see instructions below)
+
+OR
+
+An online *Azure storage account* account can be used, if the connection string is provided. For instance, the storage account of the deployed *Azure Function App* can be used.
+
+The storage account is cleaned up regularly from old entries - so the storage account size should never be too large.
+
+#### Requirements
+
+(Only if running a local database)
+
+- [NodeJS 12](https://nodejs.org/en/download/) or higher
+
+#### Start
+
+This will install and run the [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=npm) emulator.
+
+```bash
+cd db
+npm install
+npm run dev
+```
+
+<kbd>Ctrl + C</kbd> to stop the emulator.
+
 ### Run the back-end
 
 #### Requirements
 
-- [.NET SDK 3.x](https://dotnet.microsoft.com/download) or higher
-- [Azure Function Core Tools v3.x](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local#install-the-azure-functions-core-tools)
-- Optional: [Azure Storage Emulator](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator#get-the-storage-emulator)
+- [.NET SDK 3.1.x](https://dotnet.microsoft.com/download)
+- [Azure Function Core Tools v3.x](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local#install-the-azure-functions-core-tools) or higher
 
 #### Configuration
 
-An *Azure storage account* is required to store and cache the wallpaper URI and avoid multiple requests to Bing.com. The storage account connection string has to be configured in the `AzureWebJobsStorage` setting:
-
-The storage account is cleaned up regularly from old entries - so the storage account size should never be too large.
-
-##### Option 1
-
-Use the connection string from the storage account of the deployed *Azure Function App*
-
-##### Option 2
-
-Install [Azure Storage Emulator](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator#get-the-storage-emulator) and set the connection string to `UseDevelopmentStorage=true`
+The storage connection string has to be configured in the `AzureWebJobsStorage` setting:
+- Use the connection string from the storage account of the deployed *Azure Function App*
+- For the local database set the connection string to `UseDevelopmentStorage=true`
 
 #### Build & start
 

@@ -4,7 +4,6 @@
 # APP
 app/.env.local
 app/.env.production
-package-lock.json
 node_modules/
 dist/
 dist-ssr/
@@ -15,3 +14,6 @@ api/src/local.settings.json
 *.suo
 bin/
 obj/
+
+# DB
+db/azurite/*

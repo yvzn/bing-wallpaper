@@ -1,0 +1,13 @@
+{
+	"name": "bing-wallpaper-db",
+	"version": "1.0.0",
+	"private": "true",
+	"scripts": {
+		"dev": "azurite --location ./azurite"
+	},
+	"author": "Yvan Razafindramanana",
+	"license": "Apache-2.0",
+	"dependencies": {
+		"azurite": "^3.15.0"
+	}
+}
