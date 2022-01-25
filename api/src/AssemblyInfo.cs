@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Yvan Razafindramanana
+   Copyright 2021-2022 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,5 +16,5 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-[assembly: AssemblyCopyright("Copyright 2021 Yvan Razafindramanana")]
+[assembly: AssemblyCopyright("Copyright 2021-2021 Yvan Razafindramanana")]
 [assembly: InternalsVisibleTo("bing-wallpaper.tests")]

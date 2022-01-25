@@ -170,7 +170,7 @@ Make sure your *Azure DevOps principal* has write access to the *storage account
 
 [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/)
 
-Copyright 2021 Yvan Razafindramanana
+Copyright 2021-2022 Yvan Razafindramanana
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -191,7 +191,8 @@ The wallpaper themselves are hosted by Bing.com and copyrighted by their respect
 This project uses open-source, third party software:
 
 - [.NET SDK 3.x](https://github.com/dotnet/sdk): MIT License, Copyright (c) .NET Foundation
-- [Azure Function Core Tools v3.x](https://github.com/Azure/azure-functions-core-tools): MIT License, Copyright (c) .NET Foundation
+- [Azure Function Core Tools](https://github.com/Azure/azure-functions-core-tools): MIT License, Copyright (c) .NET Foundation
+- [Image Magick.NET](https://github.com/dlemstra/Magick.NET): Apache License Version 2.0, Copyright Dirk Lemstra
 - [ViteJS](https://github.com/vitejs/vite): MIT License, Copyright (c) 2019-present Evan You & Vite Contributors
 - [React](): MIT License, Copyright (c) Facebook, Inc. and its affiliates.
 

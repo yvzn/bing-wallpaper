@@ -5,6 +5,8 @@
     <RootNamespace>Ludeo.BingWallpaper</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.5.1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.4" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.12" />
   </ItemGroup>

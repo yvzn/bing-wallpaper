@@ -1,3 +1,19 @@
+/*
+   Copyright 2021-2022 Yvan Razafindramanana
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,12 +22,22 @@ using Ludeo.BingWallpaper.Service.Bing;
 
 namespace Ludeo.BingWallpaper.Model.Cache
 {
-	internal static class Mapper
+	internal class Mapper
 	{
-		internal static IEnumerable<CachedImage> Map(ImageArchive wallpaperImageArchive) =>
-			wallpaperImageArchive.Images.Select(Map);
+		internal static IEnumerable<CachedImage> Map(Dictionary<string, ImageArchive> imageArchives) =>
+			imageArchives.SelectMany(entry => new Mapper(entry.Key).Map(entry.Value.Images));
 
-		private static CachedImage Map(Image wallpaperImage) =>
+		private string market;
+
+		private Mapper(string market)
+		{
+			this.market = market;
+		}
+
+		private IEnumerable<CachedImage> Map(IEnumerable<Image> wallpaperImages) =>
+			wallpaperImages.Select(Map);
+
+		private CachedImage Map(Image wallpaperImage) =>
 			new CachedImage
 			{
 				PartitionKey = CachedImage.DefaultPartitionKey,
@@ -19,16 +45,26 @@ namespace Ludeo.BingWallpaper.Model.Cache
 				Copyright = wallpaperImage.Copyright,
 				Title = wallpaperImage.Title,
 				Uri = MapUri(wallpaperImage.UrlBase),
+				Market = market,
 			};
 
-		private static string MapRowKey(string? startDateString)
+		private string MapRowKey(string? startDateString)
 		{
+			// sets cache RowKey to have most recent items on top
+			var rowKey = 99999999;
+
 			if (int.TryParse(startDateString, out var startDateInt))
 			{
-				// set cache RowKey to have most recent items on top
-				return (99999999 - startDateInt).ToString();
+				rowKey = rowKey - startDateInt;
 			}
-			return DateTime.Now.ToString("yyyyMMdd");
+			else
+			{
+				var now = DateTime.Now;
+				var nowKey = now.Year * 10000 + now.Month * 100 + now.Day;
+				rowKey = rowKey - nowKey;
+			}
+
+			return $"{rowKey}.{market}";
 		}
 
 		private static string MapUri(string? relativeUrl) =>

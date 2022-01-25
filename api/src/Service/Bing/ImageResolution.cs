@@ -13,15 +13,18 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+using System;
 
-namespace Ludeo.BingWallpaper.Model.Bing
+namespace Ludeo.BingWallpaper.Service.Bing
 {
-	public class Image
+	internal static class ImageResolution
 	{
-		public string? Url { get; set; }
-		public string? UrlBase { get; set; }
-		public string? Title { get; set; }
-		public string? Copyright { get; set; }
-		public string? StartDate { get; set; }
+		public const string Low = "320x180";
+		public const string Full = "1920x1080";
+		public const string High = "UHD";
+
+		public static Uri ToLowResolution(this string? uri) => new Uri($"{uri}_{Low}.jpg");
+		public static Uri ToFullResolution(this string? uri) => new Uri($"{uri}_{Full}.jpg");
+		public static Uri ToHighResolution(this string? uri) => new Uri($"{uri}_{High}.jpg");
 	}
 }

@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Yvan Razafindramanana
+   Copyright 2021-2022 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -22,76 +22,127 @@ using Microsoft.Extensions.Logging;
 
 namespace Ludeo.BingWallpaper.Service.Cache
 {
-    public class CleanCacheService
-    {
-        private readonly CloudTable tableStorage;
-        private readonly ILogger logger;
+	public class CleanCacheService
+	{
+		private readonly CloudTable tableStorage;
+		private readonly ILogger logger;
 
-        public CleanCacheService(CloudTable tableStorage, ILogger logger)
-        {
-            this.tableStorage = tableStorage;
-            this.logger = logger;
-        }
+		public CleanCacheService(CloudTable tableStorage, ILogger logger)
+		{
+			this.tableStorage = tableStorage;
+			this.logger = logger;
+		}
 
-        internal async Task CleanAsync()
-        {
-            var batchDelete = new TableBatchOperation();
+		internal async Task CleanOldestAsync()
+		{
+			var rowKeysToDelete = GetOutdatedCacheEntries();
 
-            await foreach (var rowKey in GetOutdatedCacheEntries())
-            {
-                logger.LogInformation("Clean outdated cache entry RowKey={RowKey}", rowKey);
+			await DeleteCacheEntries(rowKeysToDelete);
+		}
 
-                var imageToDelete = new CachedImage
-                {
-                    PartitionKey = CachedImage.DefaultPartitionKey,
-                    RowKey = rowKey,
-                    ETag = "*"
-                };
+		internal async Task RemoveDuplicatesAsync()
+		{
+			var rowKeysToDelete = GetDuplicatedCacheEntries();
 
-                var deleteOperation = TableOperation.Delete(imageToDelete);
-                batchDelete.Add(deleteOperation);
-            }
+			await DeleteCacheEntries(rowKeysToDelete);
+		}
 
-            if (batchDelete.Count > 0)
-            {
-                await tableStorage.ExecuteBatchAsync(batchDelete);
-            }
-            else
-            {
-                logger.LogDebug("No outdated cache entry to delete");
-            }
-        }
+		private async Task DeleteCacheEntries(IAsyncEnumerable<string> rowKeysToDelete)
+		{
+			var batchDelete = new TableBatchOperation();
 
-        private async IAsyncEnumerable<string> GetOutdatedCacheEntries()
-        {
-            var partitionKeyFilter = CacheService.GeneratePartitionKeyFilter();
+			await foreach (var rowKey in rowKeysToDelete)
+			{
+				logger.LogInformation("Clean cache entry RowKey={RowKey}", rowKey);
 
-            var allCacheEntriesQuery = new TableQuery<CachedImage>()
-                .Where(partitionKeyFilter)
-                .Select(new[] { nameof(CachedImage.RowKey) });
+				var imageToDelete = new CachedImage
+				{
+					PartitionKey = CachedImage.DefaultPartitionKey,
+					RowKey = rowKey,
+					ETag = "*"
+				};
 
-            var numberOfSkippedCacheEntries = 0;
-            TableContinuationToken? continuationToken = default;
+				var deleteOperation = TableOperation.Delete(imageToDelete);
+				batchDelete.Add(deleteOperation);
+			}
 
-            do
-            {
-                var results = await tableStorage
-                    .ExecuteQuerySegmentedAsync(allCacheEntriesQuery, continuationToken);
-                continuationToken = results.ContinuationToken;
+			if (batchDelete.Count > 0)
+			{
+				await tableStorage.ExecuteBatchAsync(batchDelete);
+			}
+			else
+			{
+				logger.LogDebug("No cache entry to delete");
+			}
+		}
 
-                foreach (var result in results)
-                {
-                    if (numberOfSkippedCacheEntries < CachedImage.NumberOfEntriesToKeep)
-                    {
-                        // skip the first n entries
-                        ++numberOfSkippedCacheEntries;
-                    }
-                    else
-                    {
-                        yield return result.RowKey;
-                    }
-                }
-            } while (continuationToken != null);
-        }
-    }
+		private async IAsyncEnumerable<string> GetOutdatedCacheEntries()
+		{
+			var partitionKeyFilter = CacheService.GeneratePartitionKeyFilter();
+
+			var allCacheEntriesQuery = new TableQuery<CachedImage>()
+				.Where(partitionKeyFilter)
+				.Select(new[] { nameof(CachedImage.RowKey) });
+
+			var numberOfSkippedCacheEntries = 0;
+
+			TableContinuationToken? continuationToken = default;
+
+			do
+			{
+				var results = await tableStorage
+					.ExecuteQuerySegmentedAsync(allCacheEntriesQuery, continuationToken);
+				continuationToken = results.ContinuationToken;
+
+				foreach (var result in results)
+				{
+					if (numberOfSkippedCacheEntries < CachedImage.NumberOfEntriesToKeep)
+					{
+						// skip the first n entries
+						++numberOfSkippedCacheEntries;
+					}
+					else
+					{
+						yield return result.RowKey;
+					}
+				}
+			} while (continuationToken != null);
+		}
+
+		private async IAsyncEnumerable<string> GetDuplicatedCacheEntries()
+		{
+			var partitionKeyFilter = CacheService.GeneratePartitionKeyFilter();
+
+			var allCacheEntriesQuery = new TableQuery<CachedImage>()
+				.Where(partitionKeyFilter)
+				.Select(new[] { nameof(CachedImage.RowKey), nameof(CachedImage.SimilarityHash) });
+
+			var duplicatedHashes = new HashSet<string>();
+
+			TableContinuationToken? continuationToken = default;
+
+			do
+			{
+				var results = await tableStorage
+					.ExecuteQuerySegmentedAsync(allCacheEntriesQuery, continuationToken);
+				continuationToken = results.ContinuationToken;
+
+				foreach (var result in results)
+				{
+					if (result.SimilarityHash is null)
+					{
+						continue;
+					}
+					else if (duplicatedHashes.Contains(result.SimilarityHash))
+					{
+						yield return result.RowKey;
+					}
+					else
+					{
+						duplicatedHashes.Add(result.SimilarityHash);
+					}
+				}
+			} while (continuationToken != null);
+		}
+	}
 }
