@@ -21,10 +21,10 @@ namespace Ludeo.BingWallpaper.Service.Bing
 	{
 		public const string Low = "320x180";
 		public const string Full = "1920x1080";
-		public const string High = "UHD";
+		public const string UltraHigh = "UHD";
 
 		public static Uri ToLowResolution(this string? uri) => new Uri($"{uri}_{Low}.jpg");
 		public static Uri ToFullResolution(this string? uri) => new Uri($"{uri}_{Full}.jpg");
-		public static Uri ToHighResolution(this string? uri) => new Uri($"{uri}_{High}.jpg");
+		public static Uri ToUltraHighResolution(this string? uri) => new Uri($"{uri}_{UltraHigh}.jpg");
 	}
 }

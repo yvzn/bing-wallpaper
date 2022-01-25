@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Yvan Razafindramanana
+   Copyright 2021-2022 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,10 +15,6 @@
 */
 
 export const numberOfImages = 10;
-const defaultResolutions = {
-	low: { width: 320, height: 180 },
-	full: { width: 1920, height: 1080 },
-};
 
 async function getWallpapers() {
 	const lastWallpapersUrl = `${
@@ -31,12 +27,8 @@ async function getWallpapers() {
 	return json.map((image) => ({
 		title: image.title,
 		copyright: image.copyright,
-		thumbnail: {
-			url: `${image.uri}_${defaultResolutions.low.width}x${defaultResolutions.low.height}.jpg`,
-		},
-		large: {
-			url: `${image.uri}_${defaultResolutions.full.width}x${defaultResolutions.full.height}.jpg`,
-		},
+		lowResolution: image.lowResolution,
+		fullResolution: image.fullResolution,
 	}));
 }
 

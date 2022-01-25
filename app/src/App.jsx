@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Yvan Razafindramanana
+   Copyright 2021-2022 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -72,9 +72,9 @@ function ImagePreview({ image }) {
 		<p>
 			{image.status === "loading" && <Skeleton />}
 			{image.status === "loaded" && (
-				<a href={image.large.url}>
+				<a href={image.fullResolution}>
 					<img
-						src={image.thumbnail.url}
+						src={image.lowResolution}
 						alt={image.title}
 						loading="lazy"
 					/>
@@ -89,7 +89,7 @@ function ImageTitle({ image }) {
 		<h2>
 			{image.status === "loading" && <Skeleton>Loading...</Skeleton>}
 			{image.status === "loaded" && (
-				<a href={image.large.url}>{image.title}</a>
+				<a href={image.fullResolution}>{image.title}</a>
 			)}
 		</h2>
 	);

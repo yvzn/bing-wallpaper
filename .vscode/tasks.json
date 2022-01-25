@@ -74,6 +74,20 @@
 			"options": {
 				"cwd": "${workspaceFolder}/api"
 			}
+		},
+		{
+			"type": "npm",
+			"script": "dev",
+			"path": "app/",
+			"problemMatcher": [],
+			"label": "app start"
+		},
+		{
+			"type": "npm",
+			"script": "dev",
+			"path": "db/",
+			"problemMatcher": [],
+			"label": "db start"
 		}
 	]
 }
