@@ -27,7 +27,7 @@ namespace Ludeo.BingWallpaper.Service.Bing
 {
 	internal class WallpaperService
 	{
-		private static readonly string[] markets = new[] { "en-GB", "en-US", "fr-FR", "de-DE"  };
+		private static readonly string[] markets = new[] { "en-WW", "en-GB", "fr-FR", "en-US", "de-DE", "ja-JP" };
 		internal static readonly Uri bingHomepageUri = new Uri("https://www.bing.com");
 		private static readonly Uri imageArchiveUri = new Uri(bingHomepageUri, "HPImageArchive.aspx?format=js&idx=0");
 		private readonly static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -66,16 +66,14 @@ namespace Ludeo.BingWallpaper.Service.Bing
 			}
 		}
 
-		internal async Task<Dictionary<string, ImageArchive>> GetImageArchivesAsync()
+		internal async Task<IEnumerable<(string, ImageArchive)>> GetImageArchivesAsync()
 		{
-			var imageArchives = markets.Select(market => GetImageArchiveAsync(market));
+			var imageArchives = markets.Select(market => GetImageArchiveAsync(market)).ToList();
 
 			await Task.WhenAll(imageArchives);
 
-			// dictionary is indexed to have the archives in the original order
 			return imageArchives
-				.Select((task, index) => (task, index: index.ToString()))
-				.ToDictionary(t => t.index, t => t.task.Result);
+				.Zip(markets, (archive, market) => (market, archive.Result));
 		}
 	}
 }

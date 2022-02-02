@@ -37,7 +37,7 @@ namespace Ludeo.BingWallpaper.Function.Cache
 			[OrchestrationTrigger] IDurableOrchestrationContext context)
 		{
 			var imageArchives = await context
-				.CallActivityAsync<Dictionary<string, ImageArchive>>("UpdateImageCache_GetImages", default);
+				.CallActivityAsync<IEnumerable<(string, ImageArchive)>>("UpdateImageCache_GetImages", default);
 
 			var imagesToCache = Mapper.Map(imageArchives);
 
@@ -48,7 +48,7 @@ namespace Ludeo.BingWallpaper.Function.Cache
 		}
 
 		[FunctionName("UpdateImageCache_GetImages")]
-		public static Task<Dictionary<string, ImageArchive>> GetImagesAsync(
+		public static Task<IEnumerable<(string, ImageArchive)>> GetImagesAsync(
 			[ActivityTrigger] object trigger,
 			ILogger logger)
 		{

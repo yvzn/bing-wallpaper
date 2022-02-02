@@ -51,7 +51,8 @@ namespace Ludeo.BingWallpaper.Function
 					Copyright = cachedImage.Copyright,
 					Title = cachedImage.Title,
 					LowResolution = cachedImage.Uri.ToLowResolution(),
-					FullResolution = cachedImage.Uri.ToFullResolution()
+					FullResolution = cachedImage.Uri.ToFullResolution(),
+					Market = cachedImage.Market,
 				});
 			}
 

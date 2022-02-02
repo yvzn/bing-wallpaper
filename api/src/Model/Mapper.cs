@@ -24,14 +24,16 @@ namespace Ludeo.BingWallpaper.Model.Cache
 {
 	internal class Mapper
 	{
-		internal static IEnumerable<CachedImage> Map(Dictionary<string, ImageArchive> imageArchives) =>
-			imageArchives.SelectMany(entry => new Mapper(entry.Key).Map(entry.Value.Images));
+		internal static IEnumerable<CachedImage> Map(IEnumerable<(string market, ImageArchive archive)> imageArchives) =>
+			imageArchives.SelectMany((entry, index) => new Mapper(entry.market, index).Map(entry.archive.Images));
 
-		private string market;
+		private readonly string market;
+		private readonly int marketIndex;
 
-		private Mapper(string market)
+		private Mapper(string market, int marketIndex)
 		{
 			this.market = market;
+			this.marketIndex = marketIndex;
 		}
 
 		private IEnumerable<CachedImage> Map(IEnumerable<Image> wallpaperImages) =>
@@ -43,6 +45,7 @@ namespace Ludeo.BingWallpaper.Model.Cache
 				PartitionKey = CachedImage.DefaultPartitionKey,
 				RowKey = MapRowKey(wallpaperImage.StartDate),
 				Copyright = wallpaperImage.Copyright,
+				CopyrightLink = wallpaperImage.CopyrightLink,
 				Title = wallpaperImage.Title,
 				Uri = MapUri(wallpaperImage.UrlBase),
 				Market = market,
@@ -64,7 +67,7 @@ namespace Ludeo.BingWallpaper.Model.Cache
 				rowKey = rowKey - nowKey;
 			}
 
-			return $"{rowKey}.{market}";
+			return $"{rowKey}.{marketIndex}";
 		}
 
 		private static string MapUri(string? relativeUrl) =>

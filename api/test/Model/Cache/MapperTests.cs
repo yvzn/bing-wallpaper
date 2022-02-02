@@ -31,8 +31,8 @@ namespace Ludeo.BingWallpaper.Tests.Model.Cache
 			public void Should_generate_default_PartitionKey()
 			{
 				// Given
-				var imageArchives = new Dictionary<string, ImageArchive> {
-					{ "en-US", new ImageArchive { Images = new [] { new Image { } } } },
+				var imageArchives = new List<(string, ImageArchive)> {
+					("en-US", new ImageArchive { Images = new [] { new Image { } } } ),
 				};
 
 				// When
@@ -43,22 +43,40 @@ namespace Ludeo.BingWallpaper.Tests.Model.Cache
 			}
 
 			[Fact]
-			public void Should_generate_RowKey_from_StartDate_and_market()
+			public void Should_generate_RowKey_from_StartDate()
 			{
 				// Given
 				var startDate = 20210602.ToString();
 
-				var imageArchives = new Dictionary<string, ImageArchive> {
-					{ "en-US", new ImageArchive { Images = new [] { new Image { StartDate = startDate } } } },
+				var imageArchives = new List<(string, ImageArchive)> {
+					("en-US", new ImageArchive { Images = new [] { new Image { StartDate = startDate } } } ),
 				};
 
-
 				// When
-				var actual = Mapper.Map(imageArchives);
+				var actual = Mapper.Map(imageArchives).ToList();
 
 				// Then
-				var expected = $"{99999999 - 20210602}.en-US";
-				actual.First().RowKey.Should().Be(expected);
+				var expected = $"{99999999 - 20210602}.0";
+				actual.ElementAt(0).RowKey.Should().Be(expected);
+			}
+
+			[Fact]
+			public void Should_generate_RowKey_from_market_index()
+			{
+				// Given
+				var startDate = 20210602.ToString();
+
+				var imageArchives = new List<(string, ImageArchive)> {
+					("en-US", new ImageArchive { Images = new [] { new Image { StartDate = startDate } } } ),
+					("en-GB", new ImageArchive { Images = new [] { new Image { StartDate = startDate } } } ),
+				};
+
+				// When
+				var actual = Mapper.Map(imageArchives).ToList();
+
+				// Then
+				var expected = $"{99999999 - 20210602}.1";
+				actual.ElementAt(1).RowKey.Should().Be(expected);
 			}
 		}
 	}

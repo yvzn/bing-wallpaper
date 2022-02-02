@@ -22,6 +22,7 @@ namespace Ludeo.BingWallpaper.Model.Bing
 		public string? UrlBase { get; set; }
 		public string? Title { get; set; }
 		public string? Copyright { get; set; }
+		public string? CopyrightLink { get; set; }
 		public string? StartDate { get; set; }
 	}
 }
