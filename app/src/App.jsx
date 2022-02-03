@@ -5,7 +5,7 @@
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+	   http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -72,11 +72,12 @@ function ImagePreview({ image }) {
 		<p>
 			{image.status === "loading" && <Skeleton />}
 			{image.status === "loaded" && (
-				<a href={image.fullResolution}>
+				<a href={image.fullResolution} rel="noreferrer noopener">
 					<img
 						src={image.lowResolution}
 						alt={image.title}
-						loading="lazy"
+						width="240"
+						height="135"
 					/>
 				</a>
 			)}
@@ -89,7 +90,7 @@ function ImageTitle({ image }) {
 		<h2>
 			{image.status === "loading" && <Skeleton>Loading...</Skeleton>}
 			{image.status === "loaded" && (
-				<a href={image.fullResolution}>{image.title}</a>
+				<a href={image.fullResolution} rel="noreferrer noopener">{image.title}</a>
 			)}
 		</h2>
 	);
