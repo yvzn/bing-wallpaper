@@ -58,8 +58,13 @@ class Wallpapers extends React.Component {
 }
 
 function WallpaperCard({ image }) {
+	let lang = undefined;
+	if (Boolean(image.market) && !image.market.startsWith('en')) {
+		lang = image.market;
+	}
+
 	return (
-		<article>
+		<article lang={lang}>
 			<ImageTitle image={image} />
 			<ImagePreview image={image} />
 			<ImageCopyright image={image} />
@@ -76,8 +81,8 @@ function ImagePreview({ image }) {
 					<img
 						src={image.lowResolution}
 						alt={image.title}
-						width="240"
-						height="135"
+						width="320"
+						height="180"
 					/>
 				</a>
 			)}
@@ -86,11 +91,13 @@ function ImagePreview({ image }) {
 }
 
 function ImageTitle({ image }) {
+	let tooltip = Boolean(image.title) && image.title.length > 15 ? image.title : undefined;
+
 	return (
 		<h2>
 			{image.status === "loading" && <Skeleton>Loading...</Skeleton>}
 			{image.status === "loaded" && (
-				<a href={image.fullResolution} rel="noreferrer noopener">{image.title}</a>
+				<a href={image.fullResolution} rel="noreferrer noopener" title={tooltip}>{image.title}</a>
 			)}
 		</h2>
 	);

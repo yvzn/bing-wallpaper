@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-export const numberOfImages = 10;
+export const numberOfImages = 12;
 
 async function getWallpapers() {
 	const lastWallpapersUrl = `${

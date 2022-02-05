@@ -1,5 +1,5 @@
 /*
-   Copyright 2021 Yvan Razafindramanana
+   Copyright 2021-2021 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ header h1 {
 		"Nimbus Roman No9 L Regular", Times, "Times New Roman", serif;
 }
 
-main {
+main, noscript {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--space-large);
@@ -167,6 +167,7 @@ article p {
 
 article p img {
 	max-height: 10rem;
+	max-height: calc(15rem * 9 / 16);
 	max-width: 15rem;
 }
 
