@@ -27,7 +27,7 @@ namespace Ludeo.BingWallpaper.Service.Bing
 {
 	internal class WallpaperService
 	{
-		private static readonly string[] markets = new[] { "en-WW", "en-GB", "fr-FR", "en-US", "de-DE", "ja-JP" };
+		private static readonly string[] markets = new[] { "en-GB", "fr-FR", "en-US", "de-DE", "ja-JP" };
 		internal static readonly Uri bingHomepageUri = new Uri("https://www.bing.com");
 		private static readonly Uri imageArchiveUri = new Uri(bingHomepageUri, "HPImageArchive.aspx?format=js&idx=0");
 		private readonly static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };

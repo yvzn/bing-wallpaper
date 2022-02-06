@@ -29,6 +29,7 @@ async function getWallpapers() {
 		copyright: image.copyright,
 		lowResolution: image.lowResolution,
 		fullResolution: image.fullResolution,
+		market: image.market,
 	}));
 }
 
