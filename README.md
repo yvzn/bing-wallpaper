@@ -4,7 +4,7 @@ A web application to display the latest wallpapers from [Bing.com](https://www.b
 
 **Use of these images is restricted to wallpaper only**, as per Bing terms of use.
 
-⇒ [Demo here](https://bingwallpaper.z28.web.core.windows.net/)
+⇒ [Demo here](https://bingwallpaper.azureedge.net/)
 
 ## How?
 
@@ -49,13 +49,13 @@ Then open http://localhost:5000/ in browser of choice.
 
 Some form of storage is required to store and cache the wallpaper URIs and avoid multiple requests to Bing.com.
 
+The storage account is cleaned up regularly from old entries and duplicates - so the storage account size should never be too large.
+
 An emulator can be used to run the database locally (such as [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=npm), see instructions below)
 
 OR
 
 An online *Azure storage account* account can be used, if the connection string is provided. For instance, the storage account of the deployed *Azure Function App* can be used.
-
-The storage account is cleaned up regularly from old entries - so the storage account size should never be too large.
 
 #### Requirements
 
@@ -192,6 +192,7 @@ This project uses open-source, third party software:
 
 - [.NET SDK 3.x](https://github.com/dotnet/sdk): MIT License, Copyright (c) .NET Foundation
 - [Azure Function Core Tools](https://github.com/Azure/azure-functions-core-tools): MIT License, Copyright (c) .NET Foundation
+- [Azurite](https://github.com/Azure/Azurite): MIT License, Copyright (c) Microsoft Corporation
 - [Image Magick.NET](https://github.com/dlemstra/Magick.NET): Apache License Version 2.0, Copyright Dirk Lemstra
 - [ViteJS](https://github.com/vitejs/vite): MIT License, Copyright (c) 2019-present Evan You & Vite Contributors
 - [React](): MIT License, Copyright (c) Facebook, Inc. and its affiliates.
