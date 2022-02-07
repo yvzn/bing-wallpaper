@@ -44,9 +44,10 @@ namespace Ludeo.BingWallpaper.Model.Cache
 			{
 				PartitionKey = CachedImage.DefaultPartitionKey,
 				RowKey = MapRowKey(wallpaperImage.StartDate),
-				Copyright = wallpaperImage.Copyright,
-				Title = wallpaperImage.Title,
 				Uri = MapUri(wallpaperImage.UrlBase),
+				Title = wallpaperImage.Title,
+				Copyright = wallpaperImage.Copyright,
+				StartDate = wallpaperImage.StartDate,
 				Market = market,
 			};
 

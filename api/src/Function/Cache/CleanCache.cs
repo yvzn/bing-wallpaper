@@ -70,6 +70,10 @@ namespace Ludeo.BingWallpaper.Function.Cache
 			[DurableClient]
 			IDurableOrchestrationClient starter)
 		{
+#if DEBUG
+			await Task.Delay(millisecondsDelay: 10_000);
+#endif
+
 			await starter.StartNewAsync("CleanImageCache", default);
 		}
 	}
