@@ -12,17 +12,38 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: 'api/src/*.csproj'
-    arguments: '--configuration Release'
-- task: AzureFunctionApp@1
-  inputs:
-    azureSubscription: '$(azureSubscription)'
-    appType: 'functionAppLinux'
-    appName: '$(functionAppName)'
-    package: '$(System.DefaultWorkingDirectory)/api/src/**/*.zip'
-    runtimeStack: 'DOTNET|3.1'
+jobs:
+- job: CI
+  steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'publish'
+      publishWebProjects: false
+      projects: 'api/src/*.csproj'
+      arguments: '--configuration Release'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: 'api/src/bin/Release/netcoreapp3.1/publish.zip'
+      publishLocation: 'pipeline'
+      artifact: 'api'
+
+- deployment: CD
+  dependsOn: CI
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  environment: 'Azure'
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            buildType: 'current'
+            artifactName: 'api'
+            targetPath: 'api/src/bin/Release'
+        - task: AzureFunctionApp@1
+          inputs:
+            azureSubscription: '$(azureSubscription)'
+            appType: 'functionAppLinux'
+            appName: '$(functionAppName)'
+            package: '$(System.DefaultWorkingDirectory)/api/src/**/*.zip'
+            runtimeStack: 'DOTNET|3.1'
