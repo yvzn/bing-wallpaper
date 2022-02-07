@@ -230,12 +230,6 @@ progress {
 	}
 }
 
-@media (prefers-reduced-motion) {
-	progress {
-		animation: none;
-	}
-}
-
 progress,
 progress::-webkit-progress-bar {
 	background-color: var(--surface1);
