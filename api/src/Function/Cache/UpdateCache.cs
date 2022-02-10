@@ -33,49 +33,6 @@ namespace Ludeo.BingWallpaper.Function.Cache
 		private static readonly HttpClient httpClient = new HttpClient();
 
 		[FunctionName("UpdateImageCache")]
-		public static async Task RunOrchestrator(
-			[OrchestrationTrigger] IDurableOrchestrationContext context)
-		{
-			var imageArchives = await context
-				.CallActivityAsync<IEnumerable<(string, ImageArchive)>>("UpdateImageCache_GetImages", default);
-
-			var imagesToCache = Mapper.Map(imageArchives);
-
-			var imagesToCacheWithHash = await context
-				.CallActivityAsync<IEnumerable<CachedImage>>("UpdateImageCache_HashImages", imagesToCache);
-
-			await context.CallActivityAsync("UpdateImageCache_UpdateCache", imagesToCacheWithHash);
-		}
-
-		[FunctionName("UpdateImageCache_GetImages")]
-		public static Task<IEnumerable<(string, ImageArchive)>> GetImagesAsync(
-			[ActivityTrigger] object trigger,
-			ILogger logger)
-		{
-			return new WallpaperService(httpClient, logger).GetImageArchivesAsync();
-		}
-
-		[FunctionName("UpdateImageCache_HashImages")]
-		public static Task<IEnumerable<CachedImage>> HashImagesAsync(
-			[ActivityTrigger]
-			IEnumerable<CachedImage> images,
-			ILogger logger)
-		{
-			return new HashingService(httpClient, logger).HashAsync(images);
-		}
-
-		[FunctionName("UpdateImageCache_UpdateCache")]
-		public static Task UpdateCacheAsync(
-			[ActivityTrigger]
-			IEnumerable<CachedImage> images,
-			[Table("ImageCache")]
-			CloudTable tableStorage,
-			ILogger logger)
-		{
-			return new UpdateCacheService(tableStorage, logger).UpdateAsync(images);
-		}
-
-		[FunctionName("UpdateImageCache_TimerTrigger")]
 		public static async Task RunAsync(
 			[TimerTrigger("0 0 1 * * *"
 #if DEBUG
@@ -83,10 +40,17 @@ namespace Ludeo.BingWallpaper.Function.Cache
 #endif
 			)]
 			TimerInfo timerInfo,
-			[DurableClient]
-			IDurableOrchestrationClient starter)
+			[Table("ImageCache")]
+			CloudTable tableStorage,
+			ILogger logger)
 		{
-			await starter.StartNewAsync("UpdateImageCache", default);
+			var imageArchives = await new WallpaperService(httpClient, logger).GetImageArchivesAsync();
+
+			var imagesToCache = Mapper.Map(imageArchives);
+
+			var imagesToCacheWithHash = await new HashingService(httpClient, logger).HashAsync(imagesToCache);
+
+			await new UpdateCacheService(tableStorage, logger).UpdateAsync(imagesToCacheWithHash);
 		}
 	}
 }

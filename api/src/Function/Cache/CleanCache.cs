@@ -29,37 +29,6 @@ namespace Ludeo.BingWallpaper.Function.Cache
 		private static readonly HttpClient httpClient = new HttpClient();
 
 		[FunctionName("CleanImageCache")]
-		public static async Task RunOrchestrator(
-			[OrchestrationTrigger] IDurableOrchestrationContext context)
-		{
-			await context.CallActivityAsync("CleanImageCache_RemoveDuplicates", default);
-
-			await context.CallActivityAsync("CleanImageCache_CleanOldest", default);
-		}
-
-		[FunctionName("CleanImageCache_RemoveDuplicates")]
-		public static Task RemoveDuplicatesAsync(
-			[ActivityTrigger]
-			object trigger,
-			[Table("ImageCache")]
-			CloudTable tableStorage,
-			ILogger logger)
-		{
-			return new CleanCacheService(tableStorage, logger).RemoveDuplicatesAsync();
-		}
-
-		[FunctionName("CleanImageCache_CleanOldest")]
-		public static Task CleanOldestAsync(
-			[ActivityTrigger]
-			object trigger,
-			[Table("ImageCache")]
-			CloudTable tableStorage,
-			ILogger logger)
-		{
-			return new CleanCacheService(tableStorage, logger).CleanOldestAsync();
-		}
-
-		[FunctionName("CleanImageCache_TimerTrigger")]
 		public static async Task RunAsync(
 			[TimerTrigger("0 30 1 * * *"
 #if DEBUG
@@ -67,14 +36,18 @@ namespace Ludeo.BingWallpaper.Function.Cache
 #endif
 			)]
 			TimerInfo timerInfo,
-			[DurableClient]
-			IDurableOrchestrationClient starter)
+			[Table("ImageCache")]
+			CloudTable tableStorage,
+			ILogger logger)
 		{
 #if DEBUG
 			await Task.Delay(millisecondsDelay: 10_000);
 #endif
 
-			await starter.StartNewAsync("CleanImageCache", default);
+			var cleanCacheService = new CleanCacheService(tableStorage, logger);
+
+			await cleanCacheService.RemoveDuplicatesAsync();
+			await cleanCacheService.CleanOldestAsync();
 		}
 	}
 }

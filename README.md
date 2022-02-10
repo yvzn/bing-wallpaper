@@ -195,7 +195,7 @@ This project uses open-source, third party software:
 - [Azurite](https://github.com/Azure/Azurite): MIT License, Copyright (c) Microsoft Corporation
 - [Image Magick.NET](https://github.com/dlemstra/Magick.NET): Apache License Version 2.0, Copyright Dirk Lemstra
 - [ViteJS](https://github.com/vitejs/vite): MIT License, Copyright (c) 2019-present Evan You & Vite Contributors
-- [React](): MIT License, Copyright (c) Facebook, Inc. and its affiliates.
+- [React](https://reactjs.org/): MIT License, Copyright (c) Facebook, Inc. and its affiliates.
 
 This project uses graphics under Creative Commons licence:
 
