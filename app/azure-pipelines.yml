@@ -54,17 +54,11 @@ jobs:
             artifactName: 'app'
             targetPath: 'app/dist'
         - task: AzureCLI@2
-          displayName: 'clean files in Azure'
+          displayName: 'upload files to Azure'
           inputs:
             azureSubscription: '$(azureSubscription)'
             scriptType: 'pscore'
             scriptLocation: 'inlineScript'
-            inlineScript: 'az storage blob delete-batch --account-key $(storageAccountKey) --account-name $(storageAccountName) --source `$web --delete-snapshots include'
-        - task: AzureFileCopy@4
-          displayName: 'upload files to Azure'
-          inputs:
-            SourcePath: 'app/dist/*'
-            azureSubscription: '$(azureSubscription)'
-            Destination: 'AzureBlob'
-            storage: '$(storageAccountName)'
-            ContainerName: '$web'
+            inlineScript: |
+              az storage blob delete-batch --account-key $(storageAccountKey) --account-name $(storageAccountName) --source `$web --delete-snapshots include
+              az storage blob upload-batch --account-key $(storageAccountKey) --account-name $(storageAccountName) --destination `$web --source app/dist
