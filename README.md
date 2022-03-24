@@ -157,6 +157,7 @@ Add the following variables:
 - `azureSubscription` : Name of the *subscription* to deploy to
 - `functionAppName`: Name of the *Function app*
 - `storageAccountName`: Name of the *storage account*
+- `storageAccountKey`: Key for the *storage account*
 - `apiUrl`: base URL of the *Function app*
 
 Make sure your *Azure DevOps principal* has write access to the *storage account*:

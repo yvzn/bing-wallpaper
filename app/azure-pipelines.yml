@@ -10,8 +10,7 @@ trigger:
     - app
 
 pool:
-  # Windows is required for AzureFileCopy
-  vmImage: windows-latest
+  vmImage: ubuntu-latest
 
 jobs:
 - job: CI
