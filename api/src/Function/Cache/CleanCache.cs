@@ -19,7 +19,6 @@ using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Service.Cache;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 
 namespace Ludeo.BingWallpaper.Function.Cache

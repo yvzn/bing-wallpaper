@@ -79,8 +79,8 @@ npm run dev
 
 #### Requirements
 
-- [.NET SDK 3.1.x](https://dotnet.microsoft.com/download)
-- [Azure Function Core Tools v3.x](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local#install-the-azure-functions-core-tools) or higher
+- [.NET SDK 6.x](https://dotnet.microsoft.com/download)
+- [Azure Function Core Tools v4.x](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local#install-the-azure-functions-core-tools) or higher
 
 #### Configuration
 

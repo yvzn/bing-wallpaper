@@ -23,7 +23,7 @@ jobs:
       arguments: '--configuration Release'
   - task: PublishPipelineArtifact@1
     inputs:
-      targetPath: 'api/src/bin/Release/netcoreapp3.1/publish.zip'
+      targetPath: 'api/src/bin/Release/net6.0/publish.zip'
       publishLocation: 'pipeline'
       artifact: 'api'
 
@@ -46,4 +46,4 @@ jobs:
             appType: 'functionAppLinux'
             appName: '$(functionAppName)'
             package: '$(System.DefaultWorkingDirectory)/api/src/**/*.zip'
-            runtimeStack: 'DOTNET|3.1'
+            runtimeStack: 'DOTNET|6.0'

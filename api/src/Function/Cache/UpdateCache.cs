@@ -14,16 +14,13 @@
    limitations under the License.
 */
 
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Ludeo.BingWallpaper.Model.Bing;
 using Ludeo.BingWallpaper.Model.Cache;
 using Ludeo.BingWallpaper.Service.Bing;
 using Ludeo.BingWallpaper.Service.Cache;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 
 namespace Ludeo.BingWallpaper.Function.Cache
