@@ -141,7 +141,7 @@ cd api/src ↲
 dotnet publish --configuration Release
 ```
 
-Then upload the files in `bin/Release/netcoreapp3.1` folder to the *Function app*
+Then upload the files in `bin/Release/net6.0` folder to the *Function app*
 
 ### CI/CD
 
