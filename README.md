@@ -49,17 +49,11 @@ Then open http://localhost:5000/ in browser of choice.
 
 Some form of storage is required to store and cache the wallpaper URIs and avoid multiple requests to Bing.com.
 
-The storage account is cleaned up regularly from old entries and duplicates - so the storage account size should never be too large.
+The storage is cleaned up regularly from old entries and duplicates - so the storage size should never be too large.
 
-An emulator can be used to run the database locally (such as [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=npm), see instructions below)
-
-OR
-
-An online *Azure storage account* account can be used, if the connection string is provided. For instance, the storage account of the deployed *Azure Function App* can be used.
+An emulator can be used to run a development database locally (such as [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=npm), see instructions below)
 
 #### Requirements
-
-(Only if running a local database)
 
 - [NodeJS 12](https://nodejs.org/en/download/) or higher
 
@@ -88,9 +82,9 @@ The storage connection string has to be configured in the `AzureWebJobsStorage` 
 - Use the connection string from the storage account of the deployed *Azure Function App*
 - For the local database set the connection string to `UseDevelopmentStorage=true`
 
-#### Build & start
+Copy `local.settings.json.sample` to `local.settings.json`, then update accordingly.
 
-Copy `local.settings.json.sample` to `local.settings.json`, then:
+#### Build & start
 
 ```bash
 cd api/src
@@ -120,8 +114,8 @@ The front-end is deployed as a static website within selected *storage account*:
 #### Build and upload
 
 ```bash
-cd app ↲
-npm run build ↲
+cd app
+npm run build
 ```
 
 Then upload the files in `dist` folder to the *storage account* `$web` container via method of choice (Azure Portal, `AzCopy`, etc.) or via CI/CD
@@ -137,7 +131,7 @@ Make sure CORS is setup properly for the front-end to be able to call the back-e
 #### Build and upload
 
 ```bash
-cd api/src ↲
+cd api/src
 dotnet publish --configuration Release
 ```
 
@@ -163,9 +157,11 @@ Add the following variables:
 Make sure your *Azure DevOps principal* has write access to the *storage account*:
 - Add the role *Storage Blob Data Contributor* if necessary
 - Add the role *Storage Blob Data Owner* if necessary
+- [Full instructions here](https://brettmckenzie.net/2020/03/23/azure-pipelines-copy-files-task-authentication-failed/)
 
-[Full instructions here](https://brettmckenzie.net/2020/03/23/azure-pipelines-copy-files-task-authentication-failed/)
+Create an *environment* named `Azure` in *Azure DevOps' pipelines*.
 
+Setup two pipelines using the yaml files. On the first run, Azure DevOps will require a manual validation for each pipeline to access the *variable group* and *environment*.
 
 ## License
 
