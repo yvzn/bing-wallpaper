@@ -14,13 +14,14 @@
    limitations under the License.
 */
 
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./App";
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
 
-ReactDOM.render(
+const container = document.getElementsByTagName("main")[0];
+const root = createRoot(container);
+root.render(
 	<React.StrictMode>
 		<App />
-	</React.StrictMode>,
-	document.getElementsByTagName("main")[0]
+	</React.StrictMode>
 );
