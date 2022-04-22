@@ -5,7 +5,7 @@
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+	   http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,18 +22,16 @@ export default function App() {
 	return <Wallpapers />;
 }
 
-class Wallpapers extends React.Component {
-	constructor() {
-		const self = super();
-		self.state = {
-			images: new Array(numberOfImages).fill({ status: "loading" }),
-		};
-	}
+const initialState = {
+	images: new Array(numberOfImages).fill({ status: "loading" }),
+};
 
-	componentDidMount() {
-		var self = this;
+function Wallpapers() {
+	const [state, setState] = React.useState(initialState);
+
+	React.useEffect(() => {
 		getWallpapers().then((newImages) => {
-			self.setState((previousState) => {
+			setState((previousState) => {
 				const images = newImages.map((image) => ({
 					...image,
 					status: "loaded",
@@ -44,17 +42,15 @@ class Wallpapers extends React.Component {
 				};
 			});
 		});
-	}
+	}, []);
 
-	render() {
-		return (
-			<>
-				{this.state.images.map((image, index) => (
-					<WallpaperCard image={image} key={index} />
-				))}
-			</>
-		);
-	}
+	return (
+		<>
+			{state.images.map((image, index) => (
+				<WallpaperCard image={image} key={index} />
+			))}
+		</>
+	);
 }
 
 function WallpaperCard({ image }) {
