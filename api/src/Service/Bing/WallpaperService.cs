@@ -41,12 +41,6 @@ namespace Ludeo.BingWallpaper.Service.Bing
 			this.logger = logger;
 		}
 
-		internal async Task<Uri> GetLatestWallpaperUriAsync()
-		{
-			var imageArchive = await GetImageArchiveAsync();
-			return new Uri(bingHomepageUri, imageArchive.Images.FirstOrDefault().Url);
-		}
-
 		private async Task<ImageArchive> GetImageArchiveAsync(string market = "en-GB", int imageCount = 1)
 		{
 			var uriBuilder = new UriBuilder(imageArchiveUri);
@@ -57,13 +51,19 @@ namespace Ludeo.BingWallpaper.Service.Bing
 				using var response = await this.httpClient.GetAsync(uriBuilder.Uri);
 				using var stream = await response.Content.ReadAsStreamAsync();
 
-				return await JsonSerializer.DeserializeAsync<ImageArchive>(stream, jsonSerializerOptions);
+				var imageArchive = await JsonSerializer.DeserializeAsync<ImageArchive>(stream, jsonSerializerOptions);
+				if (imageArchive is not null)
+				{
+					return imageArchive;
+				}
+
+				logger.LogWarning("Failed to deserialize image archive {ImageArchiveUri}", uriBuilder.Uri);
 			}
 			catch (Exception ex)
 			{
-				logger.LogError(ex, "Failed retrieve image archive for market {ImageArchiveUri}", uriBuilder.Uri);
-				return new ImageArchive();
+				logger.LogError(ex, "Failed to retrieve image archive for market {ImageArchiveUri}", uriBuilder.Uri);
 			}
+			return new ImageArchive();
 		}
 
 		internal async Task<IEnumerable<(string, ImageArchive)>> GetImageArchivesAsync()
