@@ -145,9 +145,12 @@ article {
 	}
 }
 
-article:hover,
-article:focus-within {
+article:hover {
 	transform: scale(1.05);
+}
+
+article:focus-within {
+	background-color: var(--surface4);
 }
 
 article h2 {

@@ -95,7 +95,7 @@ function ImageTitle({ image }) {
 		<h2>
 			{image.status === "loading" && <Skeleton>Loading...</Skeleton>}
 			{image.status === "loaded" && (
-				<a href={image.fullResolution} rel="noreferrer noopener" title={tooltip}>{image.title}</a>
+				<a href={image.fullResolution} rel="noreferrer noopener" title={tooltip} tabIndex={-1}>{image.title}</a>
 			)}
 		</h2>
 	);
