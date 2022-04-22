@@ -14,9 +14,7 @@
    limitations under the License.
 */
 
-(function showLegacyBrowserContent() {
-	var renderingSuccessful =
-		document.getElementsByTagName("article").length > 1;
+(function showLegacyBrowserContent(renderingSuccessful) {
 	if (renderingSuccessful) {
 		return;
 	}
@@ -30,4 +28,5 @@
 	var explanatoryTextTag = mainContentTag.getElementsByTagName("strong")[0];
 	explanatoryTextTag.innerText =
 		"Updating to a newer browser, like Firefox or Chrome, will display more wallpapers.";
-})();
+
+})(window["renderingSuccessful"]);
