@@ -18,15 +18,11 @@ import React from 'react';
 
 import getWallpapers, { numberOfImages } from './service';
 
-export default function App() {
-	return <Wallpapers />;
-}
-
 const initialState = {
 	images: new Array(numberOfImages).fill({ status: "loading" }),
 };
 
-function Wallpapers() {
+function App() {
 	const [state, setState] = React.useState(initialState);
 
 	React.useEffect(() => {
@@ -44,9 +40,15 @@ function Wallpapers() {
 		});
 	}, []);
 
+	return <Wallpapers images={state.images} />;
+}
+
+export default App;
+
+function Wallpapers({ images }) {
 	return (
 		<>
-			{state.images.map((image, index) => (
+			{images.map((image, index) => (
 				<WallpaperCard image={image} key={index} />
 			))}
 		</>
