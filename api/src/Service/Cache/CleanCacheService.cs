@@ -20,129 +20,128 @@ using Ludeo.BingWallpaper.Model.Cache;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
 
-namespace Ludeo.BingWallpaper.Service.Cache
+namespace Ludeo.BingWallpaper.Service.Cache;
+
+public class CleanCacheService
 {
-	public class CleanCacheService
+	private readonly CloudTable tableStorage;
+	private readonly ILogger logger;
+
+	public CleanCacheService(CloudTable tableStorage, ILogger logger)
 	{
-		private readonly CloudTable tableStorage;
-		private readonly ILogger logger;
+		this.tableStorage = tableStorage;
+		this.logger = logger;
+	}
 
-		public CleanCacheService(CloudTable tableStorage, ILogger logger)
+	internal async Task CleanOldestAsync()
+	{
+		var rowKeysToDelete = GetOutdatedCacheEntries();
+
+		await DeleteCacheEntries(rowKeysToDelete);
+	}
+
+	internal async Task RemoveDuplicatesAsync()
+	{
+		var rowKeysToDelete = GetDuplicatedCacheEntries();
+
+		await DeleteCacheEntries(rowKeysToDelete);
+	}
+
+	private async Task DeleteCacheEntries(IAsyncEnumerable<string> rowKeysToDelete)
+	{
+		var batchDelete = new TableBatchOperation();
+
+		await foreach (var rowKey in rowKeysToDelete)
 		{
-			this.tableStorage = tableStorage;
-			this.logger = logger;
-		}
+			logger.LogInformation("Clean cache entry RowKey={RowKey}", rowKey);
 
-		internal async Task CleanOldestAsync()
-		{
-			var rowKeysToDelete = GetOutdatedCacheEntries();
-
-			await DeleteCacheEntries(rowKeysToDelete);
-		}
-
-		internal async Task RemoveDuplicatesAsync()
-		{
-			var rowKeysToDelete = GetDuplicatedCacheEntries();
-
-			await DeleteCacheEntries(rowKeysToDelete);
-		}
-
-		private async Task DeleteCacheEntries(IAsyncEnumerable<string> rowKeysToDelete)
-		{
-			var batchDelete = new TableBatchOperation();
-
-			await foreach (var rowKey in rowKeysToDelete)
+			var imageToDelete = new CachedImage
 			{
-				logger.LogInformation("Clean cache entry RowKey={RowKey}", rowKey);
+				PartitionKey = CachedImage.DefaultPartitionKey,
+				RowKey = rowKey,
+				ETag = "*"
+			};
 
-				var imageToDelete = new CachedImage
+			var deleteOperation = TableOperation.Delete(imageToDelete);
+			batchDelete.Add(deleteOperation);
+		}
+
+		if (batchDelete.Count > 0)
+		{
+			await tableStorage.ExecuteBatchAsync(batchDelete);
+		}
+		else
+		{
+			logger.LogDebug("No cache entry to delete");
+		}
+	}
+
+	private async IAsyncEnumerable<string> GetOutdatedCacheEntries()
+	{
+		var partitionKeyFilter = CacheService.GeneratePartitionKeyFilter();
+
+		var allCacheEntriesQuery = new TableQuery<CachedImage>()
+			.Where(partitionKeyFilter)
+			.Select(new[] { nameof(CachedImage.RowKey) });
+
+		var numberOfSkippedCacheEntries = 0;
+
+		TableContinuationToken? continuationToken = default;
+
+		do
+		{
+			var results = await tableStorage
+				.ExecuteQuerySegmentedAsync(allCacheEntriesQuery, continuationToken);
+			continuationToken = results.ContinuationToken;
+
+			foreach (var result in results)
+			{
+				if (numberOfSkippedCacheEntries < CachedImage.NumberOfEntriesToKeep)
 				{
-					PartitionKey = CachedImage.DefaultPartitionKey,
-					RowKey = rowKey,
-					ETag = "*"
-				};
-
-				var deleteOperation = TableOperation.Delete(imageToDelete);
-				batchDelete.Add(deleteOperation);
-			}
-
-			if (batchDelete.Count > 0)
-			{
-				await tableStorage.ExecuteBatchAsync(batchDelete);
-			}
-			else
-			{
-				logger.LogDebug("No cache entry to delete");
-			}
-		}
-
-		private async IAsyncEnumerable<string> GetOutdatedCacheEntries()
-		{
-			var partitionKeyFilter = CacheService.GeneratePartitionKeyFilter();
-
-			var allCacheEntriesQuery = new TableQuery<CachedImage>()
-				.Where(partitionKeyFilter)
-				.Select(new[] { nameof(CachedImage.RowKey) });
-
-			var numberOfSkippedCacheEntries = 0;
-
-			TableContinuationToken? continuationToken = default;
-
-			do
-			{
-				var results = await tableStorage
-					.ExecuteQuerySegmentedAsync(allCacheEntriesQuery, continuationToken);
-				continuationToken = results.ContinuationToken;
-
-				foreach (var result in results)
-				{
-					if (numberOfSkippedCacheEntries < CachedImage.NumberOfEntriesToKeep)
-					{
-						// skip the first n entries
-						++numberOfSkippedCacheEntries;
-					}
-					else
-					{
-						yield return result.RowKey;
-					}
+					// skip the first n entries
+					++numberOfSkippedCacheEntries;
 				}
-			} while (continuationToken != null);
-		}
-
-		private async IAsyncEnumerable<string> GetDuplicatedCacheEntries()
-		{
-			var partitionKeyFilter = CacheService.GeneratePartitionKeyFilter();
-
-			var allCacheEntriesQuery = new TableQuery<CachedImage>()
-				.Where(partitionKeyFilter)
-				.Select(new[] { nameof(CachedImage.RowKey), nameof(CachedImage.SimilarityHash) });
-
-			var duplicatedHashes = new HashSet<string>();
-
-			TableContinuationToken? continuationToken = default;
-
-			do
-			{
-				var results = await tableStorage
-					.ExecuteQuerySegmentedAsync(allCacheEntriesQuery, continuationToken);
-				continuationToken = results.ContinuationToken;
-
-				foreach (var result in results)
+				else
 				{
-					if (result.SimilarityHash is null)
-					{
-						continue;
-					}
-					else if (duplicatedHashes.Contains(result.SimilarityHash))
-					{
-						yield return result.RowKey;
-					}
-					else
-					{
-						duplicatedHashes.Add(result.SimilarityHash);
-					}
+					yield return result.RowKey;
 				}
-			} while (continuationToken != null);
-		}
+			}
+		} while (continuationToken != null);
+	}
+
+	internal async IAsyncEnumerable<string> GetDuplicatedCacheEntries()
+	{
+		var partitionKeyFilter = CacheService.GeneratePartitionKeyFilter();
+
+		var allCacheEntriesQuery = new TableQuery<CachedImage>()
+			.Where(partitionKeyFilter)
+			.Select(new[] { nameof(CachedImage.RowKey), nameof(CachedImage.SimilarityHash) });
+
+		var duplicatedHashes = new HashSet<string>();
+
+		TableContinuationToken? continuationToken = default;
+
+		do
+		{
+			var results = await tableStorage
+				.ExecuteQuerySegmentedAsync(allCacheEntriesQuery, continuationToken);
+			continuationToken = results.ContinuationToken;
+
+			foreach (var result in results)
+			{
+				if (result.SimilarityHash is null)
+				{
+					continue;
+				}
+				else if (duplicatedHashes.Contains(result.SimilarityHash))
+				{
+					yield return result.RowKey;
+				}
+				else
+				{
+					duplicatedHashes.Add(result.SimilarityHash);
+				}
+			}
+		} while (continuationToken != null);
 	}
 }
