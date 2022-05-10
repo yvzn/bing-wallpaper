@@ -115,9 +115,9 @@ public class CleanCacheService
 
 		var allCacheEntriesQuery = new TableQuery<CachedImage>()
 			.Where(partitionKeyFilter)
-			.Select(new[] { nameof(CachedImage.RowKey), nameof(CachedImage.SimilarityHash) });
+			.Select(new[] { nameof(CachedImage.RowKey), nameof(CachedImage.SimilarityHash), nameof(CachedImage.StartDate) });
 
-		var duplicatedHashes = new HashSet<string>();
+		var oldestImagePerSimilarityHash = new Dictionary<string, CachedImage>();
 
 		TableContinuationToken? continuationToken = default;
 
@@ -133,15 +133,53 @@ public class CleanCacheService
 				{
 					continue;
 				}
-				else if (duplicatedHashes.Contains(result.SimilarityHash))
+				else if (!oldestImagePerSimilarityHash.ContainsKey(result.SimilarityHash))
 				{
+					logger.LogDebug("Found new hash {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
+					oldestImagePerSimilarityHash[result.SimilarityHash] =  result;
+				}
+				else if (oldestImagePerSimilarityHash[result.SimilarityHash].StartDate == result.StartDate)
+				{
+					logger.LogDebug("Found duplicated hash, same date {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
+					yield return result.RowKey;
+				}
+				else if (IsBefore(oldestImagePerSimilarityHash[result.SimilarityHash].StartDate, result.StartDate))
+				{
+					logger.LogDebug("Found hash with newer date {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
+					logger.LogDebug("Will keep the existing {OldestRowKey}", oldestImagePerSimilarityHash[result.SimilarityHash].RowKey);
 					yield return result.RowKey;
 				}
 				else
 				{
-					duplicatedHashes.Add(result.SimilarityHash);
+					logger.LogDebug("Found hash with older date {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
+					logger.LogDebug("Will keep the new find {OldestRowKey}", result.RowKey);
+
+					var notSoOldImage = oldestImagePerSimilarityHash[result.SimilarityHash];
+					oldestImagePerSimilarityHash[result.SimilarityHash] = result;
+
+					yield return notSoOldImage.RowKey;
 				}
 			}
 		} while (continuationToken != null);
+	}
+
+	private bool IsBefore(string? date1, string? date2)
+	{
+		if (date1 is null && date2 is null)
+		{
+			return true;
+		}
+		else if (date1 is null)
+		{
+			return true;
+		}
+		else if (date2 is null)
+		{
+			return false;
+		}
+		else
+		{
+			return date1.CompareTo(date2) <= 0;
+		}
 	}
 }

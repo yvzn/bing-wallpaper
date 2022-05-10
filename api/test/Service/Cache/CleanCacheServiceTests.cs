@@ -14,15 +14,11 @@
    limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Ludeo.BingWallpaper.Model.Cache;
 using Ludeo.BingWallpaper.Service.Cache;
-using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
@@ -56,10 +52,10 @@ public class CleanCacheServiceTests
 			// Given
 			var tableStorageMock = new CloudTableMock
 			{
-				Entities = new [] {
-					new CachedImage { RowKey = "1", SimilarityHash = "a" },
-					new CachedImage { RowKey = "2", SimilarityHash = "b" },
-					new CachedImage { RowKey = "3", SimilarityHash = "c" },
+				Entities = new CachedImage[] {
+					new() { RowKey = "1", SimilarityHash = "a" },
+					new() { RowKey = "2", SimilarityHash = "b" },
+					new() { RowKey = "3", SimilarityHash = "c" },
 				}
 			};
 
@@ -76,15 +72,15 @@ public class CleanCacheServiceTests
 		}
 
 		[Fact]
-		public async Task Should_return_list_of_duplicates_of_single_image()
+		public async Task Should_return_duplicates_of_single_image()
 		{
 			// Given
 			var tableStorageMock = new CloudTableMock
 			{
-				Entities = new [] {
-					new CachedImage { RowKey = "original", SimilarityHash = "a" },
-					new CachedImage { RowKey = "duplicate1", SimilarityHash = "a" },
-					new CachedImage { RowKey = "duplicate2", SimilarityHash = "a" },
+				Entities = new CachedImage[] {
+					new() { RowKey = "original", SimilarityHash = "a" },
+					new() { RowKey = "duplicate1", SimilarityHash = "a" },
+					new() { RowKey = "duplicate2", SimilarityHash = "a" },
 				}
 			};
 
@@ -101,17 +97,17 @@ public class CleanCacheServiceTests
 		}
 
 		[Fact]
-		public async Task Should_return_list_of_duplicates_of_multiple_images()
+		public async Task Should_return_duplicates_of_multiple_images()
 		{
 			// Given
 			var tableStorageMock = new CloudTableMock
 			{
-				Entities = new [] {
-					new CachedImage { RowKey = "original1", SimilarityHash = "a" },
-					new CachedImage { RowKey = "duplicate1", SimilarityHash = "a" },
-					new CachedImage { RowKey = "duplicate2", SimilarityHash = "a" },
-					new CachedImage { RowKey = "original2", SimilarityHash = "b" },
-					new CachedImage { RowKey = "duplicate3", SimilarityHash = "b" },
+				Entities = new CachedImage[] {
+					new() { RowKey = "original1", SimilarityHash = "a" },
+					new() { RowKey = "duplicate1", SimilarityHash = "a" },
+					new() { RowKey = "duplicate2", SimilarityHash = "a" },
+					new() { RowKey = "original2", SimilarityHash = "b" },
+					new() { RowKey = "duplicate3", SimilarityHash = "b" },
 			}
 		};
 
@@ -125,27 +121,94 @@ public class CleanCacheServiceTests
 
 			// Then
 			actual.Should().ContainInOrder("duplicate1", "duplicate2", "duplicate3");
-		}	}
-
-	public class CloudTableMock : CloudTable
-	{
-		public CloudTableMock() : base(new("http://127.0.0.1:10002/devstoreaccount1/pizzas*"))
-		{
-			Entities = Array.Empty<CachedImage>();
 		}
 
-		public ICollection<CachedImage> Entities { get; internal set; }
-
-		public override Task<TableQuerySegment<TElement>?> ExecuteQuerySegmentedAsync<TElement>(
-			TableQuery<TElement> query,
-			TableContinuationToken token)
+		[Fact]
+		public async Task Should_keep_first_image_when_duplicates_with_same_startdate()
 		{
-			var ctor = typeof(TableQuerySegment<TElement>)
-				.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
-				.FirstOrDefault(c => c.GetParameters().Count() == 1);
+			// Given
+			var cachedImages = new CachedImage[] {
+				new() { RowKey = "date1_first", SimilarityHash = "a", StartDate = "20220502" },
+				new() { RowKey = "date1_second", SimilarityHash = "a", StartDate = "20220502" },
+				new() { RowKey = "date1_third", SimilarityHash = "a", StartDate = "20220502" },
+			};
+			var tableStorageMock = new CloudTableMock
+			{
+				Entities = cachedImages
+			};
 
-			var mockTableQuerySegment = ctor?.Invoke(new object[] { Entities.ToList() }) as TableQuerySegment<TElement>;
-			return Task.FromResult(mockTableQuerySegment);
+			var service = new CleanCacheService(
+				tableStorageMock,
+				NullLogger<CleanCacheService>.Instance
+			);
+
+			// When
+			var actual = await service.GetDuplicatedCacheEntries().ToListAsync();
+
+			// Then
+			var shouldKeep = new [] { "date1_first" };
+			var expected = new [] { "date1_first", "date1_second", "date1_third" }.Except(shouldKeep);
+
+			actual.Should().ContainInOrder(expected);
+		}
+
+		[Fact]
+		public async Task Should_keep_older_image_when_duplicates_with_distinct_startdate()
+		{
+			// Given
+			var tableStorageMock = new CloudTableMock
+			{
+				Entities = new CachedImage[] {
+					new() { RowKey = "duplicate_first", SimilarityHash = "a", StartDate = "20220502" },
+					new() { RowKey = "duplicate_second", SimilarityHash = "a", StartDate = "20220501" },
+					new() { RowKey = "duplicate_third", SimilarityHash = "a", StartDate = "20220503" },
+				}
+			};
+
+			var service = new CleanCacheService(
+				tableStorageMock,
+				NullLogger<CleanCacheService>.Instance
+			);
+
+			// When
+			var actual = await service.GetDuplicatedCacheEntries().ToListAsync();
+
+			// Then
+			var shouldKeep = new [] { "duplicate_second" };
+			var expected = new [] { "duplicate_first", "duplicate_second", "duplicate_third" }.Except(shouldKeep);
+
+			actual.Should().BeEquivalentTo(expected);
+		}
+
+
+		[Fact]
+		public async Task Should_keep_older_image_when_duplicates_with_distinct_startdate_and_multiple_images()
+		{
+			// Given
+			var tableStorageMock = new CloudTableMock
+			{
+				Entities = new CachedImage[] {
+					new() { RowKey = "date1_first", SimilarityHash = "a", StartDate = "20220502" },
+					new() { RowKey = "date1_second", SimilarityHash = "a", StartDate = "20220502" },
+					new() { RowKey = "date1_third", SimilarityHash = "a", StartDate = "20220502" },
+					new() { RowKey = "date2_first", SimilarityHash = "a", StartDate = "20220501" },
+					new() { RowKey = "date2_second", SimilarityHash = "a", StartDate = "20220501" },
+				}
+			};
+
+			var service = new CleanCacheService(
+				tableStorageMock,
+				NullLogger<CleanCacheService>.Instance
+			);
+
+			// When
+			var actual = await service.GetDuplicatedCacheEntries().ToListAsync();
+
+			// Then
+			var shouldKeep = new [] { "date2_first" };
+			var expected = new [] { "date1_first", "date1_second", "date1_third", "date2_first", "date2_second" }.Except(shouldKeep);
+
+			actual.Should().BeEquivalentTo(expected);
 		}
 	}
 }
