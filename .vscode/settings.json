@@ -1,8 +1,11 @@
 {
-    "azureFunctions.deploySubpath": "api/bin/Release/net6.0/publish",
-    "azureFunctions.projectLanguage": "C#",
-    "azureFunctions.projectRuntime": "~4",
-    "debug.internalConsoleOptions": "neverOpen",
-    "azureFunctions.preDeployTask": "publish",
-    "azureFunctions.projectSubpath": "api\\src"
+	"azureFunctions.deploySubpath": "api/bin/Release/net6.0/publish",
+	"azureFunctions.projectLanguage": "C#",
+	"azureFunctions.projectRuntime": "~4",
+	"debug.internalConsoleOptions": "neverOpen",
+	"azureFunctions.preDeployTask": "publish",
+	"azureFunctions.projectSubpath": "api\\src",
+	"[json]": {
+		"editor.defaultFormatter": "vscode.json-language-features"
+	}
 }
