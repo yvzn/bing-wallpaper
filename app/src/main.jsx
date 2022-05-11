@@ -25,5 +25,3 @@ root.render(
 		<App />
 	</React.StrictMode>
 );
-
-window["renderingSuccessful"] = true;
