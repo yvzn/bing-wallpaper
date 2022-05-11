@@ -6,6 +6,7 @@
 	},
 	"extends": [
 		"eslint:recommended",
+		"plugin:react/recommended",
 		"prettier"
 	],
 	"ignorePatterns": [
@@ -21,5 +22,10 @@
 			"jsx": true
 		}
 	},
-	"rules": {}
+	"rules": {},
+	"settings": {
+		"react": {
+			"version": "detect"
+		}
+	}
 }

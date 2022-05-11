@@ -15,6 +15,7 @@
 */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import getWallpapers, { numberOfImages } from './service';
 
@@ -55,6 +56,21 @@ function Wallpapers({ images }) {
 	);
 }
 
+const cachedImageProps = PropTypes.shape({
+	status: PropTypes.oneOf(["loading", "loaded"]).isRequired,
+	title: PropTypes.string,
+	copyright: PropTypes.string,
+	market: PropTypes.string,
+	fullResolution: PropTypes.string,
+	lowResolution: PropTypes.string,
+});
+
+Wallpapers.propTypes = {
+	images: PropTypes.arrayOf(PropTypes.shape({
+		image: cachedImageProps
+	})).isRequired,
+}
+
 function WallpaperCard({ image }) {
 	let lang = undefined;
 	if (Boolean(image.market) && !image.market.startsWith('en')) {
@@ -68,6 +84,10 @@ function WallpaperCard({ image }) {
 			<ImageCopyright image={image} />
 		</article>
 	);
+}
+
+WallpaperCard.propTypes = {
+	image: cachedImageProps
 }
 
 function ImagePreview({ image }) {
@@ -88,6 +108,8 @@ function ImagePreview({ image }) {
 	);
 }
 
+ImagePreview.propTypes = { image: cachedImageProps }
+
 function ImageTitle({ image }) {
 	let tooltip = Boolean(image.title) && image.title.length > 15 ? image.title : undefined;
 
@@ -101,10 +123,18 @@ function ImageTitle({ image }) {
 	);
 }
 
+ImageTitle.propTypes = { image: cachedImageProps }
+
 function ImageCopyright({ image }) {
 	return image.status === "loaded" && <footer>{image.copyright}</footer>;
 }
 
+ImageCopyright.propTypes = { image: cachedImageProps }
+
 function Skeleton({ children }) {
 	return <progress max="1">{children}</progress>;
 }
+
+Skeleton.propTypes = {
+	children: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+};
