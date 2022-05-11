@@ -179,7 +179,7 @@ article a {
 	text-decoration: none;
 }
 
-article h2 a {
+article h2 b {
 	border-bottom: solid 1px var(--surface4);
 }
 
