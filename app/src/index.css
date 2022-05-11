@@ -175,8 +175,14 @@ article p img {
 }
 
 article a {
+	background-image: url('placeholder.svg');
+	background-position: center;
+	background-repeat: no-repeat;
 	color: inherit;
+	display: inline-block;
+	height: 100%;
 	text-decoration: none;
+	width: 100%;
 }
 
 article h2 b {
