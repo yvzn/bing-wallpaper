@@ -34,30 +34,30 @@
 	<main>
 		<noscript>
 			<article>
-				<h2><a href=import.meta.env.VITE_API_REDIRECTION_LATEST_URL rel="noreferrer noopener">Latest
-						wallpaper</a></h2>
-				<p><a href=import.meta.env.VITE_API_REDIRECTION_LATEST_URL rel="noreferrer noopener"><img
-							src=import.meta.env.VITE_API_REDIRECTION_LATEST_URL alt="Latest wallpaper from Bing.com"
-							width="320" height="180"></a></p>
-				<footer>This image has <a href="https://bing.com" rel="noreferrer noopener">copyrights and terms
-						of use</a>.
+				<h2><b>Latest wallpaper</b></h2>
+				<p>
+					<a href=<%= apiRedirectionLatestUrl %> rel="noreferrer noopener"><img
+							src="<%= apiRedirectionLatestUrl %>" alt="Latest wallpaper from Bing.com"
+							width="320" height="180" /></a>
+				</p>
+				<footer>
+					This image has <a href="https://bing.com" rel="noreferrer noopener">copyrights and terms of use</a>.
 				</footer>
 			</article>
 			<article>
 				<h2>More images available!</h2>
-				<p><strong>Enabling JavaScript or ECMAScript in your browser will display more wallpapers.</strong></p>
+				<p>
+					<strong>Enabling JavaScript or ECMAScript in your browser will display more wallpapers.</strong>
+				</p>
 			</article>
 		</noscript>
 	</main>
 	<footer>
-		<small>
-			<p>Images from <a href="https://bing.com" rel="noreferrer noopener">Bing.com</a> are copyrighted. Use
-				of images restricted to wallpaper only.</p>
-			<p>This website does not use cookies, but Bing.com uses cookies (and similar technologies) for <a
+		<p><small>Images from <a href="https://bing.com" rel="noreferrer noopener">Bing.com</a> are copyrighted. Use of
+				images restricted to wallpaper only.</small></p>
+		<p><small>This website does not use cookies, but Bing.com uses cookies (and similar technologies) for <a
 					href="https://privacy.microsoft.com/en-gb/privacystatement" rel="noreferrer noopener">customisation
-					and advertising</a>.
-			</p>
-		</small>
+					and advertising</a>. </small></p>
 	</footer>
 	<script type="module" src="/src/main.jsx"></script>
 	<script nomodule src="/legacy-browsers.js" defer></script>
