@@ -34,17 +34,6 @@ Then open http://localhost:3000/ in browser of choice.
 
 <kbd>Ctrl + C</kbd> to exit
 
-Legacy browser support is only available when running production build preview:
-
-```bash
-npm run build
-npm run serve
-```
-
-Then open http://localhost:5000/ in browser of choice.
-
-<kbd>Ctrl + C</kbd> to exit
-
 ### Configure a database for the back-end
 
 Some form of storage is required to store and cache the wallpaper URIs and avoid multiple requests to Bing.com.

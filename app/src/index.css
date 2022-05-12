@@ -174,7 +174,7 @@ article p img {
 	max-width: 15rem;
 }
 
-article a {
+article p a {
 	background-image: url('placeholder.svg');
 	background-position: center;
 	background-repeat: no-repeat;
