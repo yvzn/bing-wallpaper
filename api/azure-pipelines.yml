@@ -10,20 +10,26 @@ trigger:
     - api
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: windows-latest
 
 jobs:
 - job: CI
   steps:
   - task: DotNetCoreCLI@2
     inputs:
+      command: 'build'
+      projects: 'api/src/*.csproj'
+      arguments: '--configuration Release --arch x64 --os win --no-self-contained'
+  - task: DotNetCoreCLI@2
+    inputs:
       command: 'publish'
       publishWebProjects: false
       projects: 'api/src/*.csproj'
-      arguments: '--configuration Release'
+      nobuild: true
+      arguments: '--configuration Release --arch x64 --os win --no-self-contained'
   - task: PublishPipelineArtifact@1
     inputs:
-      targetPath: 'api/src/bin/Release/net6.0/publish.zip'
+      targetPath: 'api/src/bin/Release/net6.0/win-x64/publish.zip'
       publishLocation: 'pipeline'
       artifact: 'api'
 
@@ -43,7 +49,7 @@ jobs:
         - task: AzureFunctionApp@1
           inputs:
             azureSubscription: '$(azureSubscription)'
-            appType: 'functionAppLinux'
+            appType: 'functionApp'
             appName: '$(functionAppName)'
             package: '$(System.DefaultWorkingDirectory)/api/src/**/*.zip'
             runtimeStack: 'DOTNET|6.0'
