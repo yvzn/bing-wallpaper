@@ -1,13 +1,13 @@
 import { defineConfig } from "vite";
 import reactRefresh from "@vitejs/plugin-react-refresh";
-import { importMetaEnvHTMLPlugin } from "./vite.plugins";
+import dotEnvHTMLPlugin from "vite-plugin-dotenv-in-html";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
 	return {
 		plugins: [
 			reactRefresh(),
-			importMetaEnvHTMLPlugin(mode),
+			dotEnvHTMLPlugin(mode),
 		],
 	};
 });
