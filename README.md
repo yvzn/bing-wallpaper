@@ -176,7 +176,7 @@ The wallpaper themselves are hosted by Bing.com and copyrighted by their respect
 
 This project uses open-source, third party software:
 
-- [.NET SDK 3.x](https://github.com/dotnet/sdk): MIT License, Copyright (c) .NET Foundation
+- [.NET SDK ](https://github.com/dotnet/sdk): MIT License, Copyright (c) .NET Foundation
 - [Azure Function Core Tools](https://github.com/Azure/azure-functions-core-tools): MIT License, Copyright (c) .NET Foundation
 - [Azurite](https://github.com/Azure/Azurite): MIT License, Copyright (c) Microsoft Corporation
 - [Image Magick.NET](https://github.com/dlemstra/Magick.NET): Apache License Version 2.0, Copyright Dirk Lemstra
