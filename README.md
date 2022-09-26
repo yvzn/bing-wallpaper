@@ -18,7 +18,7 @@ The back-end is a serverless [Azure Function app](https://docs.microsoft.com/en-
 
 #### Requirements
 
-- [NodeJS 12](https://nodejs.org/en/download/) or higher
+- [NodeJS 14](https://nodejs.org/en/download/) or higher
 
 #### Start
 
@@ -30,7 +30,7 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:3000/ in browser of choice.
+Then open http://localhost:5173/ in browser of choice.
 
 <kbd>Ctrl + C</kbd> to exit
 
