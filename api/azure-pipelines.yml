@@ -10,7 +10,7 @@ trigger:
     - api
 
 pool:
-  vmImage: windows-latest
+  vmImage: ubuntu-latest
 
 jobs:
 - job: CI
@@ -26,7 +26,7 @@ jobs:
       publishWebProjects: false
       projects: 'api/src/*.csproj'
       nobuild: true
-      arguments: '--configuration Release --arch x64 --os win --no-self-contained'
+      arguments: '--configuration Release --arch x64 --os win --no-self-contained --no-build'
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: 'api/src/bin/Release/net6.0/win-x64/publish.zip'
@@ -41,15 +41,10 @@ jobs:
     runOnce:
       deploy:
         steps:
-        - task: DownloadPipelineArtifact@2
-          inputs:
-            buildType: 'current'
-            artifactName: 'api'
-            targetPath: 'api/src/bin/Release'
         - task: AzureFunctionApp@1
           inputs:
             azureSubscription: '$(azureSubscription)'
             appType: 'functionApp'
             appName: '$(functionAppName)'
-            package: '$(System.DefaultWorkingDirectory)/api/src/**/*.zip'
+            package: '$(Pipeline.Workspace)/api/*.zip'
             runtimeStack: 'DOTNET|6.0'
