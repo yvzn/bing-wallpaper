@@ -76,6 +76,19 @@
 			}
 		},
 		{
+			"label": "api test",
+			"command": "dotnet",
+			"args": [
+				"test",
+			],
+			"type": "process",
+			"dependsOn": "api build",
+			"problemMatcher":  [],
+			"options": {
+				"cwd": "${workspaceFolder}/api/test"
+			}
+		},
+		{
 			"type": "npm",
 			"script": "dev",
 			"path": "app/",

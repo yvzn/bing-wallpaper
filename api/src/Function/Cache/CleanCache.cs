@@ -16,8 +16,8 @@
 
 using System.Net.Http;
 using System.Threading.Tasks;
+using Azure.Data.Tables;
 using Ludeo.BingWallpaper.Service.Cache;
-using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
@@ -36,7 +36,7 @@ namespace Ludeo.BingWallpaper.Function.Cache
 			)]
 			TimerInfo timerInfo,
 			[Table("ImageCache")]
-			CloudTable tableStorage,
+			TableClient tableStorage,
 			ILogger logger)
 		{
 #if DEBUG

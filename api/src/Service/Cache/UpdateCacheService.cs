@@ -17,17 +17,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Model.Cache;
-using Microsoft.Azure.Cosmos.Table;
+using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
 
 namespace Ludeo.BingWallpaper.Service.Cache
 {
 	public class UpdateCacheService
 	{
-		private readonly CloudTable tableStorage;
+		private readonly TableClient tableStorage;
 		private readonly ILogger logger;
 
-		public UpdateCacheService(CloudTable tableStorage, ILogger logger)
+		public UpdateCacheService(TableClient tableStorage, ILogger logger)
 		{
 			this.tableStorage = tableStorage;
 			this.logger = logger;
@@ -35,17 +35,17 @@ namespace Ludeo.BingWallpaper.Service.Cache
 
 		internal async Task UpdateAsync(IEnumerable<CachedImage> imagesToCache)
 		{
-			var batchInsert = new TableBatchOperation();
+			var batchInsert = new List<Task>();
 
 			foreach (var cachedImage in imagesToCache)
 			{
 				logger.LogInformation("Update cache with {LatestWallpaperUri} and RowKey={RowKey}", cachedImage.Uri, cachedImage.RowKey);
 
-				var insertOperation = TableOperation.InsertOrReplace(cachedImage);
+				var insertOperation = tableStorage.AddEntityAsync(cachedImage);
 				batchInsert.Add(insertOperation);
 			}
 
-			await tableStorage.ExecuteBatchAsync(batchInsert);
+			await Task.WhenAll(batchInsert);
 		}
 	}
 }

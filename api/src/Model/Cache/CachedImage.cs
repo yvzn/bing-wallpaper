@@ -14,11 +14,13 @@
    limitations under the License.
 */
 
-using Microsoft.Azure.Cosmos.Table;
+using System;
+using Azure;
+using Azure.Data.Tables;
 
 namespace Ludeo.BingWallpaper.Model.Cache
 {
-	public class CachedImage : TableEntity
+	public class CachedImage : ITableEntity
 	{
 		internal static string DefaultPartitionKey = "cache";
 		internal static int NumberOfEntriesToKeep = 50;
@@ -29,5 +31,10 @@ namespace Ludeo.BingWallpaper.Model.Cache
 		public string? StartDate { get; set; }
 		public string? Market { get; set; }
 		public string? SimilarityHash { get; set; }
+
+		public string? PartitionKey { get; set; }
+		public string? RowKey { get; set; }
+		public DateTimeOffset? Timestamp { get; set; }
+		public ETag ETag { get; set; }
 	}
 }

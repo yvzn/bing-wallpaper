@@ -17,17 +17,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Model.Cache;
-using Microsoft.Azure.Cosmos.Table;
+using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
 
 namespace Ludeo.BingWallpaper.Service.Cache;
 
 public class CleanCacheService
 {
-	private readonly CloudTable tableStorage;
+	private readonly TableClient tableStorage;
 	private readonly ILogger logger;
 
-	public CleanCacheService(CloudTable tableStorage, ILogger logger)
+	public CleanCacheService(TableClient tableStorage, ILogger logger)
 	{
 		this.tableStorage = tableStorage;
 		this.logger = logger;
@@ -49,118 +49,86 @@ public class CleanCacheService
 
 	private async Task DeleteCacheEntries(IAsyncEnumerable<string> rowKeysToDelete)
 	{
-		var batchDelete = new TableBatchOperation();
+		var batchDelete = new List<Task>();
 
 		await foreach (var rowKey in rowKeysToDelete)
 		{
 			logger.LogInformation("Clean cache entry RowKey={RowKey}", rowKey);
 
-			var imageToDelete = new CachedImage
-			{
-				PartitionKey = CachedImage.DefaultPartitionKey,
-				RowKey = rowKey,
-				ETag = "*"
-			};
-
-			var deleteOperation = TableOperation.Delete(imageToDelete);
+			var deleteOperation = tableStorage.DeleteEntityAsync(CachedImage.DefaultPartitionKey, rowKey);
 			batchDelete.Add(deleteOperation);
 		}
 
-		if (batchDelete.Count > 0)
-		{
-			await tableStorage.ExecuteBatchAsync(batchDelete);
-		}
-		else
-		{
-			logger.LogDebug("No cache entry to delete");
-		}
+		await Task.WhenAll(batchDelete);
 	}
 
 	private async IAsyncEnumerable<string> GetOutdatedCacheEntries()
 	{
-		var partitionKeyFilter = CacheService.GeneratePartitionKeyFilter();
-
-		var allCacheEntriesQuery = new TableQuery<CachedImage>()
-			.Where(partitionKeyFilter)
-			.Select(new[] { nameof(CachedImage.RowKey) });
+		var allCacheEntriesQuery = tableStorage.QueryAsync<CachedImage>(
+			filter: cachedImage => cachedImage.PartitionKey == CachedImage.DefaultPartitionKey,
+			select: new[] { nameof(CachedImage.RowKey) });
 
 		var numberOfSkippedCacheEntries = 0;
 
-		TableContinuationToken? continuationToken = default;
-
-		do
+		await foreach (var result in allCacheEntriesQuery)
 		{
-			var results = await tableStorage
-				.ExecuteQuerySegmentedAsync(allCacheEntriesQuery, continuationToken);
-			continuationToken = results.ContinuationToken;
-
-			foreach (var result in results)
+			if (result.RowKey is null)
 			{
-				if (numberOfSkippedCacheEntries < CachedImage.NumberOfEntriesToKeep)
-				{
-					// skip the first n entries
-					++numberOfSkippedCacheEntries;
-				}
-				else
-				{
-					yield return result.RowKey;
-				}
+				continue;
 			}
-		} while (continuationToken != null);
+			if (numberOfSkippedCacheEntries < CachedImage.NumberOfEntriesToKeep)
+			{
+				// skip the first n entries
+				++numberOfSkippedCacheEntries;
+			}
+			else
+			{
+				yield return result.RowKey;
+			}
+		}
 	}
 
 	internal async IAsyncEnumerable<string> GetDuplicatedCacheEntries()
 	{
-		var partitionKeyFilter = CacheService.GeneratePartitionKeyFilter();
-
-		var allCacheEntriesQuery = new TableQuery<CachedImage>()
-			.Where(partitionKeyFilter)
-			.Select(new[] { nameof(CachedImage.RowKey), nameof(CachedImage.SimilarityHash), nameof(CachedImage.StartDate) });
+		var allCacheEntriesQuery = tableStorage.QueryAsync<CachedImage>(
+			filter: cachedImage => cachedImage.PartitionKey == CachedImage.DefaultPartitionKey,
+			select: new[] { nameof(CachedImage.RowKey), nameof(CachedImage.SimilarityHash), nameof(CachedImage.StartDate) });
 
 		var oldestImagePerSimilarityHash = new Dictionary<string, CachedImage>();
 
-		TableContinuationToken? continuationToken = default;
-
-		do
+		await foreach (var result in allCacheEntriesQuery)
 		{
-			var results = await tableStorage
-				.ExecuteQuerySegmentedAsync(allCacheEntriesQuery, continuationToken);
-			continuationToken = results.ContinuationToken;
-
-			foreach (var result in results)
+			if (result.SimilarityHash is null || result.RowKey is null)
 			{
-				if (result.SimilarityHash is null)
-				{
-					continue;
-				}
-				else if (!oldestImagePerSimilarityHash.ContainsKey(result.SimilarityHash))
-				{
-					logger.LogDebug("Found new hash {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
-					oldestImagePerSimilarityHash[result.SimilarityHash] =  result;
-				}
-				else if (oldestImagePerSimilarityHash[result.SimilarityHash].StartDate == result.StartDate)
-				{
-					logger.LogDebug("Found duplicated hash, same date {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
-					yield return result.RowKey;
-				}
-				else if (IsBefore(oldestImagePerSimilarityHash[result.SimilarityHash].StartDate, result.StartDate))
-				{
-					logger.LogDebug("Found hash with newer date {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
-					logger.LogDebug("Will keep the existing {OldestRowKey}", oldestImagePerSimilarityHash[result.SimilarityHash].RowKey);
-					yield return result.RowKey;
-				}
-				else
-				{
-					logger.LogDebug("Found hash with older date {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
-					logger.LogDebug("Will keep the new find {OldestRowKey}", result.RowKey);
-
-					var notSoOldImage = oldestImagePerSimilarityHash[result.SimilarityHash];
-					oldestImagePerSimilarityHash[result.SimilarityHash] = result;
-
-					yield return notSoOldImage.RowKey;
-				}
+				continue;
 			}
-		} while (continuationToken != null);
+			else if (!oldestImagePerSimilarityHash.ContainsKey(result.SimilarityHash))
+			{
+				logger.LogDebug("Found new hash {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
+				oldestImagePerSimilarityHash[result.SimilarityHash] = result;
+			}
+			else if (oldestImagePerSimilarityHash[result.SimilarityHash].StartDate == result.StartDate)
+			{
+				logger.LogDebug("Found duplicated hash, same date {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
+				yield return result.RowKey;
+			}
+			else if (IsBefore(oldestImagePerSimilarityHash[result.SimilarityHash].StartDate, result.StartDate))
+			{
+				logger.LogDebug("Found hash with newer date {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
+				logger.LogDebug("Will keep the existing {OldestRowKey}", oldestImagePerSimilarityHash[result.SimilarityHash].RowKey);
+				yield return result.RowKey;
+			}
+			else
+			{
+				logger.LogDebug("Found hash with older date {SimilarityHash} ({RowKey} - {StartDate})", result.SimilarityHash, result.RowKey, result.StartDate);
+				logger.LogDebug("Will keep the new find {OldestRowKey}", result.RowKey);
+
+				var notSoOldImage = oldestImagePerSimilarityHash[result.SimilarityHash];
+				oldestImagePerSimilarityHash[result.SimilarityHash] = result;
+
+				yield return notSoOldImage.RowKey!;
+			}
+		}
 	}
 
 	private bool IsBefore(string? date1, string? date2)

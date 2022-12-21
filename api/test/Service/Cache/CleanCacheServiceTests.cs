@@ -32,7 +32,7 @@ public class CleanCacheServiceTests
 		public async Task Should_return_empty_list_when_no_cache_entries()
 		{
 			// Given
-			var tableStorageMock = new CloudTableMock();
+			var tableStorageMock = new TableClientMock();
 
 			var service = new CleanCacheService(
 				tableStorageMock,
@@ -50,7 +50,7 @@ public class CleanCacheServiceTests
 		public async Task Should_return_empty_list_when_no_duplicates()
 		{
 			// Given
-			var tableStorageMock = new CloudTableMock
+			var tableStorageMock = new TableClientMock
 			{
 				Entities = new CachedImage[] {
 					new() { RowKey = "1", SimilarityHash = "a" },
@@ -75,7 +75,7 @@ public class CleanCacheServiceTests
 		public async Task Should_return_duplicates_of_single_image()
 		{
 			// Given
-			var tableStorageMock = new CloudTableMock
+			var tableStorageMock = new TableClientMock
 			{
 				Entities = new CachedImage[] {
 					new() { RowKey = "original", SimilarityHash = "a" },
@@ -100,7 +100,7 @@ public class CleanCacheServiceTests
 		public async Task Should_return_duplicates_of_multiple_images()
 		{
 			// Given
-			var tableStorageMock = new CloudTableMock
+			var tableStorageMock = new TableClientMock
 			{
 				Entities = new CachedImage[] {
 					new() { RowKey = "original1", SimilarityHash = "a" },
@@ -109,7 +109,7 @@ public class CleanCacheServiceTests
 					new() { RowKey = "original2", SimilarityHash = "b" },
 					new() { RowKey = "duplicate3", SimilarityHash = "b" },
 			}
-		};
+			};
 
 			var service = new CleanCacheService(
 				tableStorageMock,
@@ -132,7 +132,7 @@ public class CleanCacheServiceTests
 				new() { RowKey = "date1_second", SimilarityHash = "a", StartDate = "20220502" },
 				new() { RowKey = "date1_third", SimilarityHash = "a", StartDate = "20220502" },
 			};
-			var tableStorageMock = new CloudTableMock
+			var tableStorageMock = new TableClientMock
 			{
 				Entities = cachedImages
 			};
@@ -146,8 +146,8 @@ public class CleanCacheServiceTests
 			var actual = await service.GetDuplicatedCacheEntries().ToListAsync();
 
 			// Then
-			var shouldKeep = new [] { "date1_first" };
-			var expected = new [] { "date1_first", "date1_second", "date1_third" }.Except(shouldKeep);
+			var shouldKeep = new[] { "date1_first" };
+			var expected = new[] { "date1_first", "date1_second", "date1_third" }.Except(shouldKeep);
 
 			actual.Should().ContainInOrder(expected);
 		}
@@ -156,7 +156,7 @@ public class CleanCacheServiceTests
 		public async Task Should_keep_older_image_when_duplicates_with_distinct_startdate()
 		{
 			// Given
-			var tableStorageMock = new CloudTableMock
+			var tableStorageMock = new TableClientMock
 			{
 				Entities = new CachedImage[] {
 					new() { RowKey = "duplicate_first", SimilarityHash = "a", StartDate = "20220502" },
@@ -174,8 +174,8 @@ public class CleanCacheServiceTests
 			var actual = await service.GetDuplicatedCacheEntries().ToListAsync();
 
 			// Then
-			var shouldKeep = new [] { "duplicate_second" };
-			var expected = new [] { "duplicate_first", "duplicate_second", "duplicate_third" }.Except(shouldKeep);
+			var shouldKeep = new[] { "duplicate_second" };
+			var expected = new[] { "duplicate_first", "duplicate_second", "duplicate_third" }.Except(shouldKeep);
 
 			actual.Should().BeEquivalentTo(expected);
 		}
@@ -185,7 +185,7 @@ public class CleanCacheServiceTests
 		public async Task Should_keep_older_image_when_duplicates_with_distinct_startdate_and_multiple_images()
 		{
 			// Given
-			var tableStorageMock = new CloudTableMock
+			var tableStorageMock = new TableClientMock
 			{
 				Entities = new CachedImage[] {
 					new() { RowKey = "date1_first", SimilarityHash = "a", StartDate = "20220502" },
@@ -205,8 +205,8 @@ public class CleanCacheServiceTests
 			var actual = await service.GetDuplicatedCacheEntries().ToListAsync();
 
 			// Then
-			var shouldKeep = new [] { "date2_first" };
-			var expected = new [] { "date1_first", "date1_second", "date1_third", "date2_first", "date2_second" }.Except(shouldKeep);
+			var shouldKeep = new[] { "date2_first" };
+			var expected = new[] { "date1_first", "date1_second", "date1_third", "date2_first", "date2_second" }.Except(shouldKeep);
 
 			actual.Should().BeEquivalentTo(expected);
 		}

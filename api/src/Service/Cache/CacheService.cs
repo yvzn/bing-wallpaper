@@ -16,17 +16,17 @@
 
 using System.Collections.Generic;
 using Ludeo.BingWallpaper.Model.Cache;
-using Microsoft.Azure.Cosmos.Table;
+using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
 
 namespace Ludeo.BingWallpaper.Service.Cache
 {
 	internal class CacheService
 	{
-		private readonly CloudTable tableStorage;
+		private readonly TableClient tableStorage;
 		private readonly ILogger logger;
 
-		public CacheService(CloudTable tableStorage, ILogger logger)
+		public CacheService(TableClient tableStorage, ILogger logger)
 		{
 			this.tableStorage = tableStorage;
 			this.logger = logger;
@@ -34,46 +34,31 @@ namespace Ludeo.BingWallpaper.Service.Cache
 
 		public async IAsyncEnumerable<CachedImage> GetLatestImagesAsync(int count)
 		{
-			var partitionKeyFilter = GeneratePartitionKeyFilter();
-
-			var allCacheEntriesQuery = new TableQuery<CachedImage>()
-				.Where(partitionKeyFilter);
+			var allCacheEntriesQuery = tableStorage.QueryAsync<CachedImage>(
+				cachedImage => cachedImage.PartitionKey == CachedImage.DefaultPartitionKey);
 
 			var resultCount = 0;
 
 			var duplicatedHashes = new HashSet<string>();
 
-			TableContinuationToken? continuationToken = default;
-			do
+			await foreach (var cacheEntry in allCacheEntriesQuery)
 			{
-				var results = await tableStorage
-					.ExecuteQuerySegmentedAsync(allCacheEntriesQuery, continuationToken);
-
-				continuationToken = results.ContinuationToken;
-
-				for (var enumerator = results.GetEnumerator(); enumerator.MoveNext() && resultCount < count;)
+				if (cacheEntry.SimilarityHash is null)
 				{
-					if (enumerator.Current.SimilarityHash is null)
-					{
-						++resultCount;
-						yield return enumerator.Current;
-					}
-					else if (!duplicatedHashes.Contains(enumerator.Current.SimilarityHash))
-					{
-						duplicatedHashes.Add(enumerator.Current.SimilarityHash);
-						++resultCount;
-						yield return enumerator.Current;
-					}
+					++resultCount;
+					yield return cacheEntry;
 				}
-			} while (continuationToken != null);
-		}
-
-		internal static string GeneratePartitionKeyFilter()
-		{
-			return TableQuery.GenerateFilterCondition(
-				nameof(CachedImage.PartitionKey),
-				QueryComparisons.Equal,
-				CachedImage.DefaultPartitionKey);
+				else if (!duplicatedHashes.Contains(cacheEntry.SimilarityHash))
+				{
+					duplicatedHashes.Add(cacheEntry.SimilarityHash);
+					++resultCount;
+					yield return cacheEntry;
+				}
+				if (resultCount >= count)
+				{
+					yield break;
+				}
+			}
 		}
 	}
 }

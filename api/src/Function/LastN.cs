@@ -21,7 +21,7 @@ using Ludeo.BingWallpaper.Service.Bing;
 using Ludeo.BingWallpaper.Service.Cache;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos.Table;
+using Azure.Data.Tables;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
@@ -36,7 +36,7 @@ namespace Ludeo.BingWallpaper.Function
 			HttpRequest req,
 			int? count,
 			[Table("ImageCache")]
-			CloudTable tableStorage,
+			TableClient tableStorage,
 			ILogger logger)
 		{
 			var latestImageFromCache = new CacheService(tableStorage, logger)
