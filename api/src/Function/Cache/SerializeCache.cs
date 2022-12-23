@@ -14,38 +14,46 @@
    limitations under the License.
 */
 
-using System.Net.Http;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.Data.Tables;
+using Ludeo.BingWallpaper.Service.Bing;
 using Ludeo.BingWallpaper.Service.Cache;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
 namespace Ludeo.BingWallpaper.Function.Cache;
 
-public static class CleanCache
+public static class SerializeCache
 {
-	private static readonly HttpClient httpClient = new HttpClient();
-
-	[FunctionName("CleanImageCache")]
+	[FunctionName("SerializeImageCache")]
 	public static async Task RunAsync(
-		[TimerTrigger("0 15 1 * * *"
+			[TimerTrigger("0 30 1 * * *"
 #if DEBUG
-			, RunOnStartup=true
+				, RunOnStartup=true
 #endif
-		)]
-		TimerInfo timerInfo,
-		[Table("ImageCache")]
-		TableClient tableStorage,
-		ILogger logger)
+			)]
+			TimerInfo timerInfo,
+			[Table("ImageCache")]
+			TableClient tableStorage,
+			ILogger logger)
 	{
-#if DEBUG
-		await Task.Delay(millisecondsDelay: 10_000);
-#endif
+		var latestImagesFromCache = new CacheService(tableStorage, logger).GetLatestImagesAsync(12);
 
-		var cleanCacheService = new CleanCacheService(tableStorage, logger);
+		var imagesToSerialize = new List<object>();
 
-		await cleanCacheService.RemoveDuplicatesAsync();
-		await cleanCacheService.CleanOldestAsync();
+		await foreach (var cachedImage in latestImagesFromCache)
+		{
+			imagesToSerialize.Add(new
+			{
+				copyright = cachedImage.Copyright,
+				title = cachedImage.Title,
+				lowResolution = cachedImage.Uri.ToLowResolution(),
+				fullResolution = cachedImage.Uri.ToFullResolution(),
+				market = cachedImage.Market,
+			});
+		}
+
+		await new SerializeCacheService().Serialize(imagesToSerialize);
 	}
 }
