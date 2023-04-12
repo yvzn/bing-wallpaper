@@ -8,6 +8,6 @@
 	"author": "Yvan Razafindramanana",
 	"license": "Apache-2.0",
 	"dependencies": {
-		"azurite": "^3.15.0"
+		"azurite": "^3.23.0"
 	}
 }
