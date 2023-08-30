@@ -19,9 +19,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Model.Cache;
-using ImageMagick;
 using Microsoft.Extensions.Logging;
 using System;
+using CoenM.ImageHash.HashAlgorithms;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Ludeo.BingWallpaper.Service.Bing
 {
@@ -39,20 +41,21 @@ namespace Ludeo.BingWallpaper.Service.Bing
 		internal async Task<IEnumerable<CachedImage>> HashAsync(IEnumerable<CachedImage> images) =>
 			await Task.WhenAll(images.Select(HashAsync));
 
-		private async Task<CachedImage> HashAsync(CachedImage image)
+		private async Task<CachedImage> HashAsync(CachedImage cachedImage)
 		{
 			try
 			{
-				using var stream = await httpClient.GetStreamAsync(image.Uri?.ToLowResolution());
-				using var magickImage = new MagickImage(stream);
-				image.SimilarityHash = magickImage.PerceptualHash()?.ToString();
+				using var stream = await httpClient.GetStreamAsync(cachedImage.Uri?.ToLowResolution());
+				using var image = Image.Load<Rgba32>(stream);
+				var hashAlgorithm = new PerceptualHash();
+				cachedImage.SimilarityHash = hashAlgorithm.Hash(image).ToString();
 			}
 			catch (Exception ex)
 			{
-				logger.LogWarning(ex, "Failed to compute hash of image {ImageUri}", image.Uri);
+				logger.LogWarning(ex, "Failed to compute hash of image {ImageUri}", cachedImage.Uri);
 			}
 
-			return image;
+			return cachedImage;
 		}
 	}
 }

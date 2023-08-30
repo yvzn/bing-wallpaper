@@ -14,4 +14,5 @@
 	"[javascript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
+	"dotnet.defaultSolution": "api/bing-wallpaper.sln",
 }

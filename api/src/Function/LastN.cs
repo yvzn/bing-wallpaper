@@ -48,11 +48,11 @@ namespace Ludeo.BingWallpaper.Function
 			{
 				result.Add(new
 				{
-					Copyright = cachedImage.Copyright,
-					Title = cachedImage.Title,
+					cachedImage.Copyright,
+					cachedImage.Title,
 					LowResolution = cachedImage.Uri.ToLowResolution(),
 					FullResolution = cachedImage.Uri.ToFullResolution(),
-					Market = cachedImage.Market,
+					cachedImage.Market,
 				});
 			}
 
