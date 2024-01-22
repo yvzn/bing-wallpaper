@@ -101,8 +101,7 @@ body {
 	background-color: var(--surface2);
 	color: var(--text1);
 	height: 100vh;
-	overflow-x: hidden;
-	overflow-y: auto;
+	overflow: hidden auto;
 	width: 100vw;
 }
 
