@@ -1,5 +1,5 @@
 /*
-   Copyright 2021-2022 Yvan Razafindramanana
+   Copyright 2021-2024 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -23,57 +23,49 @@ using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Model.Bing;
 using Microsoft.Extensions.Logging;
 
-namespace Ludeo.BingWallpaper.Service.Bing
+namespace Ludeo.BingWallpaper.Service.Bing;
+
+public class WallpaperService(IHttpClientFactory httpClientFactory, ILogger<WallpaperService> logger)
 {
-	internal class WallpaperService
+	private static readonly string[] markets = ["en-GB", "fr-FR", "en-US", "de-DE", "ja-JP"];
+	internal static readonly Uri bingHomepageUri = new("https://www.bing.com");
+	private static readonly Uri imageArchiveUri = new(bingHomepageUri, "HPImageArchive.aspx?format=js&idx=0");
+	private readonly static JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
+
+	private readonly HttpClient httpClient = httpClientFactory.CreateClient();
+
+	private async Task<ImageArchive> GetImageArchiveAsync(string market = "en-GB", int imageCount = 1)
 	{
-		private static readonly string[] markets = new[] { "en-GB", "fr-FR", "en-US", "de-DE", "ja-JP" };
-		internal static readonly Uri bingHomepageUri = new Uri("https://www.bing.com");
-		private static readonly Uri imageArchiveUri = new Uri(bingHomepageUri, "HPImageArchive.aspx?format=js&idx=0");
-		private readonly static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+		var uriBuilder = new UriBuilder(imageArchiveUri);
+		uriBuilder.Query = uriBuilder.Query + $"&mkt={market}&n={imageCount}";
 
-		private readonly HttpClient httpClient;
-		private readonly ILogger logger;
-
-		public WallpaperService(HttpClient httpClient, ILogger logger)
+		try
 		{
-			this.httpClient = httpClient;
-			this.logger = logger;
-		}
+			using var response = await httpClient.GetAsync(uriBuilder.Uri);
+			using var stream = await response.Content.ReadAsStreamAsync();
 
-		private async Task<ImageArchive> GetImageArchiveAsync(string market = "en-GB", int imageCount = 1)
-		{
-			var uriBuilder = new UriBuilder(imageArchiveUri);
-			uriBuilder.Query = uriBuilder.Query + $"&mkt={market}&n={imageCount}";
-
-			try
+			var imageArchive = await JsonSerializer.DeserializeAsync<ImageArchive>(stream, jsonSerializerOptions);
+			if (imageArchive is not null)
 			{
-				using var response = await this.httpClient.GetAsync(uriBuilder.Uri);
-				using var stream = await response.Content.ReadAsStreamAsync();
-
-				var imageArchive = await JsonSerializer.DeserializeAsync<ImageArchive>(stream, jsonSerializerOptions);
-				if (imageArchive is not null)
-				{
-					return imageArchive;
-				}
-
-				logger.LogWarning("Failed to deserialize image archive {ImageArchiveUri}", uriBuilder.Uri);
+				return imageArchive;
 			}
-			catch (Exception ex)
-			{
-				logger.LogError(ex, "Failed to retrieve image archive for market {ImageArchiveUri}", uriBuilder.Uri);
-			}
-			return new ImageArchive();
+
+			logger.LogWarning("Failed to deserialize image archive {ImageArchiveUri}", uriBuilder.Uri);
 		}
-
-		internal async Task<IEnumerable<(string, ImageArchive)>> GetImageArchivesAsync()
+		catch (Exception ex)
 		{
-			var imageArchives = markets.Select(market => GetImageArchiveAsync(market)).ToList();
-
-			await Task.WhenAll(imageArchives);
-
-			return imageArchives
-				.Zip(markets, (archive, market) => (market, archive.Result));
+			logger.LogError(ex, "Failed to retrieve image archive for market {ImageArchiveUri}", uriBuilder.Uri);
 		}
+		return new ImageArchive();
+	}
+
+	internal async Task<IEnumerable<(string, ImageArchive)>> GetImageArchivesAsync()
+	{
+		var imageArchives = markets.Select(market => GetImageArchiveAsync(market)).ToList();
+
+		await Task.WhenAll(imageArchives);
+
+		return imageArchives
+			.Zip(markets, (archive, market) => (market, archive.Result));
 	}
 }

@@ -1,5 +1,5 @@
 /*
-   Copyright 2021-2022 Yvan Razafindramanana
+   Copyright 2021-2024 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,36 +14,26 @@
    limitations under the License.
 */
 
-using System.Net.Http;
 using System.Threading.Tasks;
-using Azure.Data.Tables;
 using Ludeo.BingWallpaper.Service.Cache;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
 
 namespace Ludeo.BingWallpaper.Function.Cache;
 
-public static class CleanCache
+public class CleanCache(CleanCacheService cleanCacheService)
 {
-	private static readonly HttpClient httpClient = new HttpClient();
-
-	[FunctionName("CleanImageCache")]
-	public static async Task RunAsync(
+	[Function("CleanImageCache")]
+	public async Task RunAsync(
 		[TimerTrigger("0 15 1 * * *"
 #if DEBUG
 			, RunOnStartup=true
 #endif
 		)]
-		TimerInfo timerInfo,
-		[Table("ImageCache")]
-		TableClient tableStorage,
-		ILogger logger)
+		TimerInfo timerInfo)
 	{
 #if DEBUG
 		await Task.Delay(millisecondsDelay: 10_000);
 #endif
-
-		var cleanCacheService = new CleanCacheService(tableStorage, logger);
 
 		await cleanCacheService.RemoveDuplicatesAsync();
 		await cleanCacheService.CleanOldestAsync();

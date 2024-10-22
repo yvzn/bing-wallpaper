@@ -1,5 +1,5 @@
 /*
-   Copyright 2021-2022 Yvan Razafindramanana
+   Copyright 2021-2024 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,52 +16,45 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Service.Bing;
 using Ludeo.BingWallpaper.Service.Cache;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Azure.Data.Tables;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
 
-namespace Ludeo.BingWallpaper.Function
+namespace Ludeo.BingWallpaper.Function;
+
+public class LastN(CacheService cacheService)
 {
-	public static class LastN
+	[Function("GetLastNimages")]
+	public async Task<IActionResult> RunAsync(
+		[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "last/{count:int?}")]
+		HttpRequest req,
+		int? count)
 	{
-		[FunctionName("GetLastNimages")]
-		public static async Task<IActionResult> RunAsync(
-			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "last/{count:int?}")]
-			HttpRequest req,
-			int? count,
-			[Table("ImageCache")]
-			TableClient tableStorage,
-			ILogger logger)
+		var latestImageFromCache = cacheService.GetLatestImagesAsync(count.GetValueOrDefault(10));
+
+		var result = new List<object>();
+
+		await foreach (var cachedImage in latestImageFromCache)
 		{
-			var latestImageFromCache = new CacheService(tableStorage, logger)
-				.GetLatestImagesAsync(count.GetValueOrDefault(10));
-
-			var result = new List<object>();
-
-			await foreach (var cachedImage in latestImageFromCache)
+			result.Add(new
 			{
-				result.Add(new
-				{
-					cachedImage.Copyright,
-					cachedImage.Title,
-					LowResolution = cachedImage.Uri.ToLowResolution(),
-					FullResolution = cachedImage.Uri.ToFullResolution(),
-					cachedImage.Market,
-				});
-			}
-
-			if (result.Any())
-			{
-				return new OkObjectResult(result);
-			}
-
-			return new NotFoundResult();
+				cachedImage.Copyright,
+				cachedImage.Title,
+				LowResolution = cachedImage.Uri.ToLowResolution(),
+				FullResolution = cachedImage.Uri.ToFullResolution(),
+				cachedImage.Market,
+			});
 		}
+
+		if (result.Count != 0)
+		{
+			return new OkObjectResult(result);
+		}
+
+		return new StatusCodeResult(StatusCodes.Status410Gone);
 	}
 }

@@ -1,5 +1,5 @@
 /*
-   Copyright 2021-2022 Yvan Razafindramanana
+   Copyright 2021-2024 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,19 +19,13 @@ using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Model.Cache;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Azure;
 
 namespace Ludeo.BingWallpaper.Service.Cache;
 
-public class CleanCacheService
+public class CleanCacheService(IAzureClientFactory<TableClient> azureClientFactory, ILogger<CleanCacheService> logger)
 {
-	private readonly TableClient tableStorage;
-	private readonly ILogger logger;
-
-	public CleanCacheService(TableClient tableStorage, ILogger logger)
-	{
-		this.tableStorage = tableStorage;
-		this.logger = logger;
-	}
+	private readonly TableClient tableStorage = azureClientFactory.CreateClient("ImageCacheTableClient");
 
 	internal async Task CleanOldestAsync()
 	{
@@ -66,7 +60,7 @@ public class CleanCacheService
 	{
 		var allCacheEntriesQuery = tableStorage.QueryAsync<CachedImage>(
 			filter: cachedImage => cachedImage.PartitionKey == CachedImage.DefaultPartitionKey,
-			select: new[] { nameof(CachedImage.RowKey) });
+			select: [nameof(CachedImage.RowKey)]);
 
 		var numberOfSkippedCacheEntries = 0;
 
@@ -92,7 +86,7 @@ public class CleanCacheService
 	{
 		var allCacheEntriesQuery = tableStorage.QueryAsync<CachedImage>(
 			filter: cachedImage => cachedImage.PartitionKey == CachedImage.DefaultPartitionKey,
-			select: new[] { nameof(CachedImage.RowKey), nameof(CachedImage.SimilarityHash), nameof(CachedImage.StartDate) });
+			select: [nameof(CachedImage.RowKey), nameof(CachedImage.SimilarityHash), nameof(CachedImage.StartDate)]);
 
 		var oldestImagePerSimilarityHash = new Dictionary<string, CachedImage>();
 
@@ -131,7 +125,7 @@ public class CleanCacheService
 		}
 	}
 
-	private bool IsBefore(string? date1, string? date2)
+	private static bool IsBefore(string? date1, string? date2)
 	{
 		if (date1 is null && date2 is null)
 		{

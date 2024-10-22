@@ -124,7 +124,7 @@ cd api/src
 dotnet publish --configuration Release
 ```
 
-Then upload the files in `bin/Release/net6.0` folder to the *Function app*
+Then upload the files in `bin/Release/net8.0` folder to the *Function app*
 
 ### CI/CD
 
@@ -156,7 +156,7 @@ Setup two pipelines using the yaml files. On the first run, Azure DevOps will re
 
 [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/)
 
-Copyright 2021-2022 Yvan Razafindramanana
+Copyright 2021-2024 Yvan Razafindramanana
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

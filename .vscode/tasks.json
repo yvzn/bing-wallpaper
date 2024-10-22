@@ -36,7 +36,7 @@
 			"type": "func",
 			"dependsOn": "api build",
 			"options": {
-				"cwd": "${workspaceFolder}/api/src/bin/Debug/net6.0"
+				"cwd": "${workspaceFolder}/api/src/bin/Debug/net8.0"
 			},
 			"command": "host start",
 			"isBackground": true,

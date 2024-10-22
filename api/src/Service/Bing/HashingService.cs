@@ -25,37 +25,29 @@ using CoenM.ImageHash.HashAlgorithms;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace Ludeo.BingWallpaper.Service.Bing
+namespace Ludeo.BingWallpaper.Service.Bing;
+
+public class HashingService(IHttpClientFactory httpClientFactory, ILogger<HashingService> logger)
 {
-	internal class HashingService
+	private readonly HttpClient httpClient = httpClientFactory.CreateClient();
+
+	internal async Task<IEnumerable<CachedImage>> HashAsync(IEnumerable<CachedImage> images) =>
+		await Task.WhenAll(images.Select(HashAsync));
+
+	private async Task<CachedImage> HashAsync(CachedImage cachedImage)
 	{
-		private HttpClient httpClient;
-		private readonly ILogger logger;
-
-		public HashingService(HttpClient httpClient, ILogger logger)
+		try
 		{
-			this.httpClient = httpClient;
-			this.logger = logger;
+			using var stream = await httpClient.GetStreamAsync(cachedImage.Uri?.ToLowResolution());
+			using var image = Image.Load<Rgba32>(stream);
+			var hashAlgorithm = new PerceptualHash();
+			cachedImage.SimilarityHash = hashAlgorithm.Hash(image).ToString();
+		}
+		catch (Exception ex)
+		{
+			logger.LogWarning(ex, "Failed to compute hash of image {ImageUri}", cachedImage.Uri);
 		}
 
-		internal async Task<IEnumerable<CachedImage>> HashAsync(IEnumerable<CachedImage> images) =>
-			await Task.WhenAll(images.Select(HashAsync));
-
-		private async Task<CachedImage> HashAsync(CachedImage cachedImage)
-		{
-			try
-			{
-				using var stream = await httpClient.GetStreamAsync(cachedImage.Uri?.ToLowResolution());
-				using var image = Image.Load<Rgba32>(stream);
-				var hashAlgorithm = new PerceptualHash();
-				cachedImage.SimilarityHash = hashAlgorithm.Hash(image).ToString();
-			}
-			catch (Exception ex)
-			{
-				logger.LogWarning(ex, "Failed to compute hash of image {ImageUri}", cachedImage.Uri);
-			}
-
-			return cachedImage;
-		}
+		return cachedImage;
 	}
 }

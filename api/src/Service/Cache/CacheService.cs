@@ -1,5 +1,5 @@
 /*
-   Copyright 2021-2022 Yvan Razafindramanana
+   Copyright 2021-2024 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,47 +17,39 @@
 using System.Collections.Generic;
 using Ludeo.BingWallpaper.Model.Cache;
 using Azure.Data.Tables;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Azure;
 
-namespace Ludeo.BingWallpaper.Service.Cache
+namespace Ludeo.BingWallpaper.Service.Cache;
+
+public class CacheService(IAzureClientFactory<TableClient> azureClientFactory)
 {
-	internal class CacheService
+	private readonly TableClient tableStorage = azureClientFactory.CreateClient("ImageCacheTableClient");
+
+	public async IAsyncEnumerable<CachedImage> GetLatestImagesAsync(int count)
 	{
-		private readonly TableClient tableStorage;
-		private readonly ILogger logger;
+		var allCacheEntriesQuery = tableStorage.QueryAsync<CachedImage>(
+			cachedImage => cachedImage.PartitionKey == CachedImage.DefaultPartitionKey);
 
-		public CacheService(TableClient tableStorage, ILogger logger)
+		var resultCount = 0;
+
+		var duplicatedHashes = new HashSet<string>();
+
+		await foreach (var cacheEntry in allCacheEntriesQuery)
 		{
-			this.tableStorage = tableStorage;
-			this.logger = logger;
-		}
-
-		public async IAsyncEnumerable<CachedImage> GetLatestImagesAsync(int count)
-		{
-			var allCacheEntriesQuery = tableStorage.QueryAsync<CachedImage>(
-				cachedImage => cachedImage.PartitionKey == CachedImage.DefaultPartitionKey);
-
-			var resultCount = 0;
-
-			var duplicatedHashes = new HashSet<string>();
-
-			await foreach (var cacheEntry in allCacheEntriesQuery)
+			if (cacheEntry.SimilarityHash is null)
 			{
-				if (cacheEntry.SimilarityHash is null)
-				{
-					++resultCount;
-					yield return cacheEntry;
-				}
-				else if (!duplicatedHashes.Contains(cacheEntry.SimilarityHash))
-				{
-					duplicatedHashes.Add(cacheEntry.SimilarityHash);
-					++resultCount;
-					yield return cacheEntry;
-				}
-				if (resultCount >= count)
-				{
-					yield break;
-				}
+				++resultCount;
+				yield return cacheEntry;
+			}
+			else if (!duplicatedHashes.Contains(cacheEntry.SimilarityHash))
+			{
+				duplicatedHashes.Add(cacheEntry.SimilarityHash);
+				++resultCount;
+				yield return cacheEntry;
+			}
+			if (resultCount >= count)
+			{
+				yield break;
 			}
 		}
 	}

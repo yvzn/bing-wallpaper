@@ -14,34 +14,18 @@
    limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using Azure.Data.Tables;
-using Azure;
-using System.Threading;
-using System.Linq.Expressions;
-using Ludeo.BingWallpaper.Model.Cache;
+using Microsoft.Extensions.Azure;
 using NSubstitute;
 
 namespace Ludeo.BingWallpaper.Tests.Service.Cache;
 
-internal class TableClientMock : TableClient
+internal class AzureClientFactoryMock
 {
-	public TableClientMock()
+	internal static IAzureClientFactory<TableClient> Create(TableClientMock tableStorageMock)
 	{
-		Entities = [];
-	}
-
-	public IReadOnlyList<CachedImage> Entities { get; internal set; }
-
-	public override AsyncPageable<T> QueryAsync<T>(
-		Expression<Func<T, bool>> filter,
-		int? maxPerPage = null,
-		IEnumerable<string>? select = null,
-		CancellationToken cancellationToken = default)
-	{
-		var values = Entities as IReadOnlyList<T>;
-		var page = Page<T>.FromValues(values!, continuationToken: null, Substitute.For<Response>());
-		return AsyncPageable<T>.FromPages([page]);
+		var mock = Substitute.For<IAzureClientFactory<TableClient>>();
+		mock.CreateClient(default).ReturnsForAnyArgs(tableStorageMock);
+		return mock;
 	}
 }

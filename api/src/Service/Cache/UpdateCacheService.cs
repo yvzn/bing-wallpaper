@@ -1,5 +1,5 @@
 /*
-   Copyright 2021-2022 Yvan Razafindramanana
+   Copyright 2021-2024 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,33 +19,26 @@ using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Model.Cache;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Azure;
 
-namespace Ludeo.BingWallpaper.Service.Cache
+namespace Ludeo.BingWallpaper.Service.Cache;
+
+public class UpdateCacheService(IAzureClientFactory<TableClient> azureClientFactory, ILogger<UpdateCacheService> logger)
 {
-	public class UpdateCacheService
+	private readonly TableClient tableStorage = azureClientFactory.CreateClient("ImageCacheTableClient");
+
+	internal async Task UpdateAsync(IEnumerable<CachedImage> imagesToCache)
 	{
-		private readonly TableClient tableStorage;
-		private readonly ILogger logger;
+		var batchInsert = new List<Task>();
 
-		public UpdateCacheService(TableClient tableStorage, ILogger logger)
+		foreach (var cachedImage in imagesToCache)
 		{
-			this.tableStorage = tableStorage;
-			this.logger = logger;
+			logger.LogInformation("Update cache with {LatestWallpaperUri} and RowKey={RowKey}", cachedImage.Uri, cachedImage.RowKey);
+
+			var insertOperation = tableStorage.AddEntityAsync(cachedImage);
+			batchInsert.Add(insertOperation);
 		}
 
-		internal async Task UpdateAsync(IEnumerable<CachedImage> imagesToCache)
-		{
-			var batchInsert = new List<Task>();
-
-			foreach (var cachedImage in imagesToCache)
-			{
-				logger.LogInformation("Update cache with {LatestWallpaperUri} and RowKey={RowKey}", cachedImage.Uri, cachedImage.RowKey);
-
-				var insertOperation = tableStorage.AddEntityAsync(cachedImage);
-				batchInsert.Add(insertOperation);
-			}
-
-			await Task.WhenAll(batchInsert);
-		}
+		await Task.WhenAll(batchInsert);
 	}
 }

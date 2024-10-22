@@ -1,5 +1,5 @@
 /*
-   Copyright 2021-2022 Yvan Razafindramanana
+   Copyright 2021-2024 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,29 +16,24 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Azure.Data.Tables;
 using Ludeo.BingWallpaper.Service.Bing;
 using Ludeo.BingWallpaper.Service.Cache;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
 
 namespace Ludeo.BingWallpaper.Function.Cache;
 
-public static class SerializeCache
+public class SerializeCache(CacheService cacheService, SerializeCacheService serializeCacheService)
 {
-	[FunctionName("SerializeImageCache")]
-	public static async Task RunAsync(
+	[Function("SerializeImageCache")]
+	public async Task RunAsync(
 			[TimerTrigger("0 30 1 * * *"
 #if DEBUG
 				, RunOnStartup=true
 #endif
 			)]
-			TimerInfo timerInfo,
-			[Table("ImageCache")]
-			TableClient tableStorage,
-			ILogger logger)
+			TimerInfo timerInfo)
 	{
-		var latestImagesFromCache = new CacheService(tableStorage, logger).GetLatestImagesAsync(12);
+		var latestImagesFromCache = cacheService.GetLatestImagesAsync(12);
 
 		var imagesToSerialize = new List<object>();
 
@@ -54,6 +49,6 @@ public static class SerializeCache
 			});
 		}
 
-		await new SerializeCacheService().Serialize(imagesToSerialize);
+		await serializeCacheService.Serialize(imagesToSerialize);
 	}
 }

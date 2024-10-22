@@ -1,5 +1,5 @@
 /*
-   Copyright 2021-2022 Yvan Razafindramanana
+   Copyright 2021-2024 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,34 +19,28 @@ using Ludeo.BingWallpaper.Service.Bing;
 using Ludeo.BingWallpaper.Service.Cache;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Azure.Data.Tables;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace Ludeo.BingWallpaper.Function
+namespace Ludeo.BingWallpaper.Function;
+
+public class Latest(CacheService cacheService, ILogger<Latest> logger)
 {
-	public static class Latest
+	[Function("RedirectToLatest")]
+	public async Task<IActionResult> RunAsync(
+		[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "redirection-to/latest")]
+		HttpRequest req)
 	{
-		[FunctionName("RedirectToLatest")]
-		public static async Task<IActionResult> RunAsync(
-			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "redirection-to/latest")]
-			HttpRequest req,
-			[Table("ImageCache")]
-			TableClient tableStorage,
-			ILogger logger)
+		var latestImageFromCache = cacheService.GetLatestImagesAsync(1);
+
+		await foreach (var cachedImage in latestImageFromCache)
 		{
-			var latestImageFromCache = new CacheService(tableStorage, logger).GetLatestImagesAsync(1);
+			var latestWallpaperUri = cachedImage.Uri.ToFullResolution().ToString();
 
-			await foreach (var cachedImage in latestImageFromCache)
-			{
-				var latestWallpaperUri = cachedImage.Uri.ToFullResolution().ToString();
-
-				logger.LogInformation("Redirecting to {LatestWallpaperUri}", latestWallpaperUri);
-				return new RedirectResult(latestWallpaperUri);
-			}
-
-			return new NotFoundResult();
+			logger.LogInformation("Redirecting to {LatestWallpaperUri}", latestWallpaperUri);
+			return new RedirectResult(latestWallpaperUri);
 		}
+
+		return new StatusCodeResult(StatusCodes.Status410Gone);
 	}
 }

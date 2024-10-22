@@ -1,5 +1,5 @@
 /*
-   Copyright 2021-2022 Yvan Razafindramanana
+   Copyright 2021-2024 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,40 +14,31 @@
    limitations under the License.
 */
 
-using System.Net.Http;
 using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Model.Cache;
 using Ludeo.BingWallpaper.Service.Bing;
 using Ludeo.BingWallpaper.Service.Cache;
-using Azure.Data.Tables;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
 
-namespace Ludeo.BingWallpaper.Function.Cache
+namespace Ludeo.BingWallpaper.Function.Cache;
+
+public class UpdateCache(WallpaperService wallpaperService, HashingService hashingService, UpdateCacheService updateCacheService)
 {
-	public static class UpdateCache
-	{
-		private static readonly HttpClient httpClient = new HttpClient();
-
-		[FunctionName("UpdateImageCache")]
-		public static async Task RunAsync(
-			[TimerTrigger("0 0 1 * * *"
+	[Function("UpdateImageCache")]
+	public async Task RunAsync(
+		[TimerTrigger("0 0 1 * * *"
 #if DEBUG
-				, RunOnStartup=true
+			, RunOnStartup=true
 #endif
-			)]
-			TimerInfo timerInfo,
-			[Table("ImageCache")]
-			TableClient tableStorage,
-			ILogger logger)
-		{
-			var imageArchives = await new WallpaperService(httpClient, logger).GetImageArchivesAsync();
+		)]
+		TimerInfo timerInfo)
+	{
+		var imageArchives = await wallpaperService.GetImageArchivesAsync();
 
-			var imagesToCache = Mapper.Map(imageArchives);
+		var imagesToCache = Mapper.Map(imageArchives);
 
-			var imagesToCacheWithHash = await new HashingService(httpClient, logger).HashAsync(imagesToCache);
+		var imagesToCacheWithHash = await hashingService.HashAsync(imagesToCache);
 
-			await new UpdateCacheService(tableStorage, logger).UpdateAsync(imagesToCacheWithHash);
-		}
+		await updateCacheService.UpdateAsync(imagesToCacheWithHash);
 	}
 }

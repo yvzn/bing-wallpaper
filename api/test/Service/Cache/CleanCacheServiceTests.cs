@@ -1,5 +1,5 @@
 /*
-   Copyright 2021-2022 Yvan Razafindramanana
+   Copyright 2021-2024 Yvan Razafindramanana
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class CleanCacheServiceTests
 			var tableStorageMock = new TableClientMock();
 
 			var service = new CleanCacheService(
-				tableStorageMock,
+				AzureClientFactoryMock.Create(tableStorageMock),
 				NullLogger<CleanCacheService>.Instance
 			);
 
@@ -52,15 +52,15 @@ public class CleanCacheServiceTests
 			// Given
 			var tableStorageMock = new TableClientMock
 			{
-				Entities = new CachedImage[] {
+				Entities = [
 					new() { RowKey = "1", SimilarityHash = "a" },
 					new() { RowKey = "2", SimilarityHash = "b" },
 					new() { RowKey = "3", SimilarityHash = "c" },
-				}
+				]
 			};
 
 			var service = new CleanCacheService(
-				tableStorageMock,
+				AzureClientFactoryMock.Create(tableStorageMock),
 				NullLogger<CleanCacheService>.Instance
 			);
 
@@ -77,15 +77,15 @@ public class CleanCacheServiceTests
 			// Given
 			var tableStorageMock = new TableClientMock
 			{
-				Entities = new CachedImage[] {
+				Entities = [
 					new() { RowKey = "original", SimilarityHash = "a" },
 					new() { RowKey = "duplicate1", SimilarityHash = "a" },
 					new() { RowKey = "duplicate2", SimilarityHash = "a" },
-				}
+				]
 			};
 
 			var service = new CleanCacheService(
-				tableStorageMock,
+				AzureClientFactoryMock.Create(tableStorageMock),
 				NullLogger<CleanCacheService>.Instance
 			);
 
@@ -102,17 +102,17 @@ public class CleanCacheServiceTests
 			// Given
 			var tableStorageMock = new TableClientMock
 			{
-				Entities = new CachedImage[] {
+				Entities = [
 					new() { RowKey = "original1", SimilarityHash = "a" },
 					new() { RowKey = "duplicate1", SimilarityHash = "a" },
 					new() { RowKey = "duplicate2", SimilarityHash = "a" },
 					new() { RowKey = "original2", SimilarityHash = "b" },
 					new() { RowKey = "duplicate3", SimilarityHash = "b" },
-			}
+				]
 			};
 
 			var service = new CleanCacheService(
-				tableStorageMock,
+				AzureClientFactoryMock.Create(tableStorageMock),
 				NullLogger<CleanCacheService>.Instance
 			);
 
@@ -138,7 +138,7 @@ public class CleanCacheServiceTests
 			};
 
 			var service = new CleanCacheService(
-				tableStorageMock,
+				AzureClientFactoryMock.Create(tableStorageMock),
 				NullLogger<CleanCacheService>.Instance
 			);
 
@@ -158,15 +158,15 @@ public class CleanCacheServiceTests
 			// Given
 			var tableStorageMock = new TableClientMock
 			{
-				Entities = new CachedImage[] {
+				Entities = [
 					new() { RowKey = "duplicate_first", SimilarityHash = "a", StartDate = "20220502" },
 					new() { RowKey = "duplicate_second", SimilarityHash = "a", StartDate = "20220501" },
 					new() { RowKey = "duplicate_third", SimilarityHash = "a", StartDate = "20220503" },
-				}
+				]
 			};
 
 			var service = new CleanCacheService(
-				tableStorageMock,
+				AzureClientFactoryMock.Create(tableStorageMock),
 				NullLogger<CleanCacheService>.Instance
 			);
 
@@ -187,17 +187,17 @@ public class CleanCacheServiceTests
 			// Given
 			var tableStorageMock = new TableClientMock
 			{
-				Entities = new CachedImage[] {
+				Entities = [
 					new() { RowKey = "date1_first", SimilarityHash = "a", StartDate = "20220502" },
 					new() { RowKey = "date1_second", SimilarityHash = "a", StartDate = "20220502" },
 					new() { RowKey = "date1_third", SimilarityHash = "a", StartDate = "20220502" },
 					new() { RowKey = "date2_first", SimilarityHash = "a", StartDate = "20220501" },
 					new() { RowKey = "date2_second", SimilarityHash = "a", StartDate = "20220501" },
-				}
+				]
 			};
 
 			var service = new CleanCacheService(
-				tableStorageMock,
+				AzureClientFactoryMock.Create(tableStorageMock),
 				NullLogger<CleanCacheService>.Instance
 			);
 
