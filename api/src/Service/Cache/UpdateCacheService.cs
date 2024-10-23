@@ -20,6 +20,7 @@ using Ludeo.BingWallpaper.Model.Cache;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Azure;
+using Azure;
 
 namespace Ludeo.BingWallpaper.Service.Cache;
 
@@ -35,10 +36,24 @@ public class UpdateCacheService(IAzureClientFactory<TableClient> azureClientFact
 		{
 			logger.LogInformation("Update cache with {LatestWallpaperUri} and RowKey={RowKey}", cachedImage.Uri, cachedImage.RowKey);
 
-			var insertOperation = tableStorage.AddEntityAsync(cachedImage);
+			var insertOperation = AddToCacheAsync(cachedImage);
+
 			batchInsert.Add(insertOperation);
 		}
 
 		await Task.WhenAll(batchInsert);
+	}
+
+	private async Task<Response?> AddToCacheAsync(CachedImage cachedImage)
+	{
+		try
+		{
+			return await tableStorage.AddEntityAsync(cachedImage);
+		}
+		catch (RequestFailedException ex)
+		{
+			logger.LogError(ex, "Failed to update cache with {LatestWallpaperUri} and RowKey={RowKey}", cachedImage.Uri, cachedImage.RowKey);
+		}
+		return default;
 	}
 }
