@@ -16,6 +16,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Ludeo.BingWallpaper.Model.Cache;
 using Ludeo.BingWallpaper.Service.Bing;
 using Ludeo.BingWallpaper.Service.Cache;
 using Microsoft.Azure.Functions.Worker;
@@ -26,18 +27,29 @@ public class SerializeCache(CacheService cacheService, SerializeCacheService ser
 {
 	[Function("SerializeImageCache")]
 	public async Task RunAsync(
-			[TimerTrigger("0 30 1 * * *"
+		[TimerTrigger("0 30 1 * * *"
 #if DEBUG
-				, RunOnStartup=true
+			, RunOnStartup=true
 #endif
-			)]
-			TimerInfo timerInfo)
+		)]
+		TimerInfo timerInfo)
 	{
+#if DEBUG
+		await Task.Delay(millisecondsDelay: 20_000);
+#endif
+
 		var latestImagesFromCache = cacheService.GetLatestImagesAsync(12);
 
+		var imagesToSerialize = await Convert(latestImagesFromCache);
+
+		await serializeCacheService.Serialize(imagesToSerialize);
+	}
+
+	private static async Task<List<object>> Convert(IAsyncEnumerable<CachedImage> imagesFromCache)
+	{
 		var imagesToSerialize = new List<object>();
 
-		await foreach (var cachedImage in latestImagesFromCache)
+		await foreach (var cachedImage in imagesFromCache)
 		{
 			imagesToSerialize.Add(new
 			{
@@ -49,6 +61,6 @@ public class SerializeCache(CacheService cacheService, SerializeCacheService ser
 			});
 		}
 
-		await serializeCacheService.Serialize(imagesToSerialize);
+		return imagesToSerialize;
 	}
 }

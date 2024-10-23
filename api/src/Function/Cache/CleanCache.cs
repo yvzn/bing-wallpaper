@@ -32,7 +32,7 @@ public class CleanCache(CleanCacheService cleanCacheService)
 		TimerInfo timerInfo)
 	{
 #if DEBUG
-		await Task.Delay(millisecondsDelay: 10_000);
+		await Task.Delay(millisecondsDelay: 15_000);
 #endif
 
 		await cleanCacheService.RemoveDuplicatesAsync();

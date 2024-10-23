@@ -18,15 +18,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
-using Microsoft.Extensions.Azure;
 
-public class SerializeCacheService(IAzureClientFactory<BlobServiceClient> azureClientFactory)
+namespace Ludeo.BingWallpaper.Service.Cache;
+
+public class SerializeCacheService(BlobServiceClient blobServiceClient)
 {
-	private readonly BlobServiceClient blobServiceClient = azureClientFactory.CreateClient("WebStorageBlobServiceClient");
+	internal static readonly string blobContainerName = "$web";
 
 	internal async Task Serialize(List<object> images)
 	{
-		const string blobContainerName = "$web";
 		const string blobName = "last-images.json";
 
 		var blobContainerClient = blobServiceClient.GetBlobContainerClient(blobContainerName);

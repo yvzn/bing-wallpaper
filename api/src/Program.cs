@@ -5,6 +5,7 @@ using Ludeo.BingWallpaper.Service.Cache;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 var host = new HostBuilder()
 	.ConfigureFunctionsWebApplication()
@@ -32,6 +33,12 @@ var host = new HostBuilder()
 		services.AddSingleton<SerializeCacheService>();
 		services.AddSingleton<UpdateCacheService>();
 		services.AddSingleton<WallpaperService>();
+	})
+	.ConfigureLogging(logging =>
+	{
+		logging.SetMinimumLevel(LogLevel.Warning);
+		logging.AddFilter("Function", LogLevel.Warning);
+		logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
 	})
 	.Build();
 

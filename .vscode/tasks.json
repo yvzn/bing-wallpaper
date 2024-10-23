@@ -24,7 +24,7 @@
 				"/consoleloggerparameters:NoSummary"
 			],
 			"type": "process",
-			"dependsOn": "api clean",
+			//"dependsOn": "api clean",
 			"group": "build",
 			"problemMatcher": "$msCompile",
 			"options": {
@@ -32,7 +32,6 @@
 			}
 		},
 		{
-			"label": "api start",
 			"type": "func",
 			"dependsOn": "api build",
 			"options": {

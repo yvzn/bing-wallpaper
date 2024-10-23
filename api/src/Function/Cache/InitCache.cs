@@ -15,34 +15,26 @@
 */
 
 using System.Threading.Tasks;
-using Ludeo.BingWallpaper.Model.Cache;
-using Ludeo.BingWallpaper.Service.Bing;
-using Ludeo.BingWallpaper.Service.Cache;
+using Azure.Data.Tables;
+using Azure.Storage.Blobs;
 using Microsoft.Azure.Functions.Worker;
 
 namespace Ludeo.BingWallpaper.Function.Cache;
 
-public class UpdateCache(WallpaperService wallpaperService, HashingService hashingService, UpdateCacheService updateCacheService)
+public class InitCache(TableServiceClient tableServiceClient, BlobServiceClient blobServiceClient)
 {
-	[Function("UpdateImageCache")]
+#if DEBUG
+	[Function("InitImageCache")]
 	public async Task RunAsync(
 		[TimerTrigger("0 0 1 * * *"
-#if DEBUG
 			, RunOnStartup=true
-#endif
 		)]
 		TimerInfo timerInfo)
 	{
-#if DEBUG
-		await Task.Delay(millisecondsDelay: 10_000);
-#endif
+		await Task.Delay(millisecondsDelay: 5_000);
 
-		var imageArchives = await wallpaperService.GetImageArchivesAsync();
-
-		var imagesToCache = Mapper.Map(imageArchives);
-
-		var imagesToCacheWithHash = await hashingService.HashAsync(imagesToCache);
-
-		await updateCacheService.UpdateAsync(imagesToCacheWithHash);
+		await tableServiceClient.CreateTableIfNotExistsAsync("ImageCache");
+		await blobServiceClient.GetBlobContainerClient("$web").CreateIfNotExistsAsync();
 	}
+#endif
 }
