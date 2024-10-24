@@ -40,16 +40,9 @@ public class SerializeCache(CacheService cacheService, SerializeCacheService ser
 
 		var latestImagesFromCache = cacheService.GetLatestImagesAsync(12);
 
-		var imagesToSerialize = await Convert(latestImagesFromCache);
-
-		await serializeCacheService.Serialize(imagesToSerialize);
-	}
-
-	private static async Task<List<object>> Convert(IAsyncEnumerable<CachedImage> imagesFromCache)
-	{
 		var imagesToSerialize = new List<object>();
 
-		await foreach (var cachedImage in imagesFromCache)
+		await foreach (var cachedImage in latestImagesFromCache)
 		{
 			imagesToSerialize.Add(new
 			{
@@ -57,10 +50,11 @@ public class SerializeCache(CacheService cacheService, SerializeCacheService ser
 				title = cachedImage.Title,
 				lowResolution = cachedImage.Uri.ToLowResolution(),
 				fullResolution = cachedImage.Uri.ToFullResolution(),
+				ultraHighResolution = cachedImage.Uri.ToUltraHighResolution(),
 				market = cachedImage.Market,
 			});
 		}
 
-		return imagesToSerialize;
+		await serializeCacheService.Serialize(imagesToSerialize);
 	}
 }

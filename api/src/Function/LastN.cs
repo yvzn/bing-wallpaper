@@ -46,6 +46,7 @@ public class LastN(CacheService cacheService)
 				cachedImage.Title,
 				LowResolution = cachedImage.Uri.ToLowResolution(),
 				FullResolution = cachedImage.Uri.ToFullResolution(),
+				ultraHighResolution = cachedImage.Uri.ToUltraHighResolution(),
 				cachedImage.Market,
 			});
 		}
