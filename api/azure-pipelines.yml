@@ -42,4 +42,4 @@ jobs:
             appType: 'functionAppLinux'
             appName: '$(functionAppName)'
             package: '$(Pipeline.Workspace)/api/*.zip'
-            runtimeStack: 'DOTNET|6.0'
+            runtimeStack: 'DOTNET|8.0'
