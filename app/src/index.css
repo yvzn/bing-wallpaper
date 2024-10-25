@@ -150,6 +150,7 @@ article:hover {
 
 article:focus-within {
 	background-color: var(--surface4);
+	transform: scale(1.05);
 }
 
 article h2 {

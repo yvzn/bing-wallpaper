@@ -24,5 +24,4 @@
 	var explanatoryTextTag = mainContentTag.getElementsByTagName("strong")[0];
 	explanatoryTextTag.innerText =
 		"Updating to a newer browser, like Firefox or Chrome, will display more wallpapers.";
-
 })();

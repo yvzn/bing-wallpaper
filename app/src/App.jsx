@@ -14,50 +14,51 @@
    limitations under the License.
 */
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-import getWallpapers, { numberOfImages } from './service';
+import getWallpapers, { numberOfImages } from "./service";
 
 const initialState = {
-	images: new Array(numberOfImages).fill({ status: "loading" }),
+	images: new Array(numberOfImages).fill({}),
+	status: "loading",
 };
 
 function App() {
 	const [state, setState] = React.useState(initialState);
 
 	React.useEffect(() => {
-		getWallpapers().then((newImages) => {
+		getWallpapers().then((images) => {
 			setState((previousState) => {
-				const images = newImages.map((image) => ({
-					...image,
-					status: "loaded",
-				}));
 				return {
 					...previousState,
 					images,
+					status: "loaded",
 				};
 			});
 		});
 	}, []);
 
-	return <Wallpapers images={state.images} />;
+	return (
+		<>
+			<Wallpapers images={state.images} status={state.status} />
+		</>
+	);
 }
 
 export default App;
 
-function Wallpapers({ images }) {
+function Wallpapers({ images, status }) {
 	return (
 		<>
 			{images.map((image, index) => (
-				<WallpaperCard image={image} key={index} />
+				<WallpaperCard key={index} image={image} status={status} />
 			))}
 		</>
 	);
 }
 
 const cachedImageProps = PropTypes.shape({
-	status: PropTypes.oneOf(["loading", "loaded"]).isRequired,
 	title: PropTypes.string,
 	copyright: PropTypes.string,
 	market: PropTypes.string,
@@ -65,36 +66,41 @@ const cachedImageProps = PropTypes.shape({
 	lowResolution: PropTypes.string,
 });
 
-Wallpapers.propTypes = {
-	images: PropTypes.arrayOf(PropTypes.shape({
-		image: cachedImageProps
-	})).isRequired,
-}
+const loadingStatus = PropTypes.oneOf(["loading", "loaded"]);
 
-function WallpaperCard({ image }) {
+Wallpapers.propTypes = {
+	images: PropTypes.arrayOf(
+		PropTypes.shape({
+			image: cachedImageProps,
+		}),
+	).isRequired,
+	status: loadingStatus.isRequired,
+};
+
+function WallpaperCard({ image, status }) {
 	let lang = undefined;
-	if (Boolean(image.market) && !image.market.startsWith('en')) {
+	if (Boolean(image.market) && !image.market.startsWith("en")) {
 		lang = image.market;
 	}
 
 	return (
 		<article lang={lang}>
-			<ImageTitle image={image} />
-			<ImagePreview image={image} />
-			<ImageCopyright image={image} />
+			<ImageTitle image={image} status={status} />
+			<ImagePreview image={image} status={status} />
 		</article>
 	);
 }
 
 WallpaperCard.propTypes = {
-	image: cachedImageProps
-}
+	image: cachedImageProps,
+	status: loadingStatus.isRequired,
+};
 
-function ImagePreview({ image }) {
+function ImagePreview({ image, status }) {
 	return (
 		<p>
-			{image.status === "loading" && <Skeleton />}
-			{image.status === "loaded" && (
+			{status === "loading" && <Skeleton />}
+			{status === "loaded" && (
 				<a href={image.fullResolution} rel="noreferrer noopener">
 					<img
 						src={image.lowResolution}
@@ -108,28 +114,29 @@ function ImagePreview({ image }) {
 	);
 }
 
-ImagePreview.propTypes = { image: cachedImageProps }
+ImagePreview.propTypes = {
+	image: cachedImageProps,
+	status: loadingStatus.isRequired,
+};
 
-function ImageTitle({ image }) {
-	let tooltip = Boolean(image.title) && image.title.length > 15 ? image.title : undefined;
+function ImageTitle({ image, status }) {
+	let tooltip =
+		Boolean(image.title) && image.title.length > 15
+			? image.title
+			: undefined;
 
 	return (
 		<h2>
-			{image.status === "loading" && <Skeleton>Loading...</Skeleton>}
-			{image.status === "loaded" && (
-				<b title={tooltip}>{image.title}</b>
-			)}
+			{status === "loading" && <Skeleton>Loading...</Skeleton>}
+			{status === "loaded" && <b title={tooltip}>{image.title}</b>}
 		</h2>
 	);
 }
 
-ImageTitle.propTypes = { image: cachedImageProps }
-
-function ImageCopyright({ image }) {
-	return image.status === "loaded" && <footer>{image.copyright}</footer>;
-}
-
-ImageCopyright.propTypes = { image: cachedImageProps }
+ImageTitle.propTypes = {
+	image: cachedImageProps,
+	status: loadingStatus.isRequired,
+};
 
 function Skeleton({ children }) {
 	return <progress max="1">{children}</progress>;
