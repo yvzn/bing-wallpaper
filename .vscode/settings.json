@@ -14,6 +14,9 @@
 	"[javascript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
+	"[javascriptreact]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
 	"dotnet.defaultSolution": "api/bing-wallpaper.sln",
 	"azureFunctions.hostStartTimeout": 120,
 	"azureFunctions.pickProcessTimeout": 120,
