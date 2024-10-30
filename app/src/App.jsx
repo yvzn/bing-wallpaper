@@ -22,6 +22,7 @@ import getWallpapers, { numberOfImages } from "./service";
 const initialState = {
 	images: new Array(numberOfImages).fill({}),
 	status: "loading",
+	selectedImage: undefined,
 };
 
 function App() {
@@ -39,20 +40,43 @@ function App() {
 		});
 	}, []);
 
+	const selectImage = (image) => {
+		console.log("Selected image:", image);
+		setState((previousState) => {
+			return {
+				...previousState,
+				selectedImage: image,
+			};
+		});
+	};
+
 	return (
 		<>
-			<Wallpapers images={state.images} status={state.status} />
+			<Wallpapers
+				images={state.images}
+				status={state.status}
+				onSelectImage={selectImage}
+			/>
 		</>
 	);
 }
 
 export default App;
 
-function Wallpapers({ images, status }) {
+function Wallpapers({ images, status, onSelectImage }) {
+	const selectWallpaperCard = (index) => () => {
+		onSelectImage(index);
+	};
+
 	return (
 		<>
 			{images.map((image, index) => (
-				<WallpaperCard key={index} image={image} status={status} />
+				<WallpaperCard
+					key={index}
+					image={image}
+					status={status}
+					onClick={selectWallpaperCard(index)}
+				/>
 			))}
 		</>
 	);
@@ -75,9 +99,10 @@ Wallpapers.propTypes = {
 		}),
 	).isRequired,
 	status: loadingStatus.isRequired,
+	onSelectImage: PropTypes.func.isRequired,
 };
 
-function WallpaperCard({ image, status }) {
+function WallpaperCard({ image, status, onClick }) {
 	let lang = undefined;
 	if (Boolean(image.market) && !image.market.startsWith("en")) {
 		lang = image.market;
@@ -86,7 +111,7 @@ function WallpaperCard({ image, status }) {
 	return (
 		<article lang={lang}>
 			<ImageTitle image={image} status={status} />
-			<ImagePreview image={image} status={status} />
+			<ImagePreview image={image} status={status} onClick={onClick} />
 		</article>
 	);
 }
@@ -94,21 +119,22 @@ function WallpaperCard({ image, status }) {
 WallpaperCard.propTypes = {
 	image: cachedImageProps,
 	status: loadingStatus.isRequired,
+	onClick: PropTypes.func.isRequired,
 };
 
-function ImagePreview({ image, status }) {
+function ImagePreview({ image, status, onClick }) {
 	return (
 		<p>
 			{status === "loading" && <Skeleton />}
 			{status === "loaded" && (
-				<a href={image.fullResolution} rel="noreferrer noopener">
+				<button type="button" onClick={onClick}>
 					<img
 						src={image.lowResolution}
 						alt={image.title}
 						width="320"
 						height="180"
 					/>
-				</a>
+				</button>
 			)}
 		</p>
 	);
@@ -117,6 +143,7 @@ function ImagePreview({ image, status }) {
 ImagePreview.propTypes = {
 	image: cachedImageProps,
 	status: loadingStatus.isRequired,
+	onClick: PropTypes.func.isRequired,
 };
 
 function ImageTitle({ image, status }) {
