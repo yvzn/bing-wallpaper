@@ -23,7 +23,7 @@
 	margin: 0;
 	padding: 0;
 
-	--space: 0.5rem;
+	--space: 10px;
 	--space-small: calc(var(--space) / 2);
 	--space-large: calc(var(--space) * 2);
 
@@ -130,6 +130,68 @@ a {
 	color: var(--brand);
 }
 
+button {
+	cursor: pointer;
+	transition: transform 0.05s ease-out;
+}
+
+@media (prefers-reduced-motion) {
+	button {
+		transition: none;
+	}
+}
+
+dialog {
+	background-color: var(--surface2);
+	border: none;
+	border-radius: var(--space);
+	box-shadow: var(--rad-shadow);
+	left: 50%;
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 360px;
+}
+
+dialog::backdrop {
+	backdrop-filter: blur(2px) saturate(25%);
+}
+
+dialog h2 {
+	background-color: var(--surface1);
+	color: var(--text2);
+	font-size: initial;
+	padding: var(--space-large);
+	text-align: center;
+}
+
+dialog section {
+	margin: var(--space-large);
+	padding: var(--space) 0;
+}
+
+dialog section > * + * {
+	margin-top: var(--space-large);
+}
+
+dialog footer {
+	background-color: var(--surface3);
+	color: var(--text2);
+	font-size: initial;
+}
+
+dialog footer button {
+	background-color: transparent;
+	border: none;
+	color: var(--text1);
+	cursor: pointer;
+	display: inline-block;
+	font-size: initial;
+	padding: var(--space-large);
+	text-align: center;
+	width: 100%;
+}
+
 article {
 	background-color: var(--surface2);
 	border-radius: var(--space);
@@ -174,7 +236,7 @@ article p img {
 	max-width: 15rem;
 }
 
-article p a, article p button {
+article p button {
 	background-color: transparent;
 	background-image: url('placeholder.svg');
 	background-position: center;
@@ -188,22 +250,15 @@ article p a, article p button {
 	width: 100%;
 }
 
-article p a:active, article p button:active {
+button:active {
 	transform: scale(.98);
 }
-
-@media (prefers-reduced-motion) {
-	article p a, article p button {
-		transition: none;
-	}
-}
-
 
 article h2 b {
 	border-bottom: solid 1px var(--surface4);
 }
 
-footer {
+body > footer {
 	background-color: var(--surface1);
 	bottom: 0;
 	padding: var(--space-large);
