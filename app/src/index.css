@@ -132,13 +132,6 @@ a {
 
 button {
 	cursor: pointer;
-	transition: transform 0.05s ease-out;
-}
-
-@media (prefers-reduced-motion) {
-	button {
-		transition: none;
-	}
 }
 
 dialog {
@@ -146,8 +139,9 @@ dialog {
 	border: none;
 	border-radius: var(--space);
 	box-shadow: var(--rad-shadow);
+	color: var(--text1);
 	left: 50%;
-	position: absolute;
+	position: fixed;
 	top: 50%;
 	transform: translate(-50%, -50%);
 	width: 360px;
@@ -158,7 +152,7 @@ dialog::backdrop {
 }
 
 dialog h2 {
-	background-color: var(--surface1);
+	background-color: var(--surface3);
 	color: var(--text2);
 	font-size: initial;
 	padding: var(--space-large);
@@ -190,6 +184,14 @@ dialog footer button {
 	padding: var(--space-large);
 	text-align: center;
 	width: 100%;
+}
+
+dialog footer button:active {
+	transform: scale(.95);
+}
+
+dialog p img {
+	max-width: 78vw;
 }
 
 article {
@@ -230,13 +232,7 @@ article p {
 	width: 15rem;
 }
 
-article p img {
-	max-height: 10rem;
-	max-height: calc(15rem * 9 / 16);
-	max-width: 15rem;
-}
-
-article p button {
+article p input {
 	background-color: transparent;
 	background-image: url('placeholder.svg');
 	background-position: center;
@@ -245,17 +241,15 @@ article p button {
 	color: inherit;
 	display: inline-block;
 	height: 100%;
+	max-height: 10rem;
+	max-height: calc(15rem * 9 / 16);
+	max-width: 15rem;
 	text-decoration: none;
-	transition: transform 0.05s ease-out;
 	width: 100%;
 }
 
-button:active {
+article p input:active {
 	transform: scale(.98);
-}
-
-article h2 b {
-	border-bottom: solid 1px var(--surface4);
 }
 
 body > footer {

@@ -133,19 +133,15 @@ function ImagePreview({ image, status, onClick }) {
 		<p>
 			{status === "loading" && <Skeleton />}
 			{status === "loaded" && (
-				<button
-					type="button"
+				<input
+					type="image"
 					onClick={onClick}
-					aria-label={"More details: " + image.title}
-				>
-					<img
-						src={image.lowResolution}
-						alt={image.title}
-						width="320"
-						height="180"
-						lang={lang}
-					/>
-				</button>
+					src={image.lowResolution}
+					alt={image.title}
+					width="320"
+					height="180"
+					lang={lang}
+				/>
 			)}
 		</p>
 	);
@@ -254,24 +250,19 @@ function ImageDetails({ image }) {
 					/>
 				</p>
 				<p lang={lang}>{image?.copyright}</p>
-				<menu>
-					<li>
-						<a
-							href={image?.fullResolution}
-							rel="noreferrer noopener"
-						>
-							View in high resolution
-						</a>
-					</li>
-					<li>
-						<a
-							href={image?.ultraHighResolution}
-							rel="noreferrer noopener"
-						>
-							View in ultra-high resolution
-						</a>
-					</li>
-				</menu>
+				<p>
+					<a href={image?.fullResolution} rel="noreferrer noopener">
+						High resolution
+					</a>
+				</p>
+				<p>
+					<a
+						href={image?.ultraHighResolution}
+						rel="noreferrer noopener"
+					>
+						Ultra-high resolution
+					</a>
+				</p>
 			</section>
 		</>
 	);
