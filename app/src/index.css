@@ -199,13 +199,6 @@ article {
 	border-radius: var(--space);
 	box-shadow: var(--rad-shadow);
 	padding: var(--space);
-	transition: transform 0.1s ease-out;
-}
-
-@media (prefers-reduced-motion) {
-	article {
-		transition: none;
-	}
 }
 
 article:hover {
@@ -273,6 +266,12 @@ progress {
 @keyframes animate-progress {
 	50% {
 		opacity: 0.5;
+	}
+}
+
+@media (prefers-reduced-motion) {
+	progress {
+		animation-duration: 3s;
 	}
 }
 
