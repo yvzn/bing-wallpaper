@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+/* || Design tokens */
+
 * {
 	box-sizing: border-box;
 
@@ -97,6 +99,8 @@
 	}
 }
 
+/* || General styles */
+
 body {
 	background-color: var(--surface2);
 	color: var(--text1);
@@ -104,6 +108,16 @@ body {
 	overflow: hidden auto;
 	width: 100vw;
 }
+
+a {
+	color: var(--brand);
+}
+
+button {
+	cursor: pointer;
+}
+
+/* || Header, Footer and Main Navigation */
 
 header {
 	background-color: var(--surface4);
@@ -126,13 +140,16 @@ main, noscript {
 		var(--space-large);
 }
 
-a {
-	color: var(--brand);
+body > footer {
+	background-color: var(--surface1);
+	bottom: 0;
+	padding: var(--space-large);
+	position: fixed;
+	text-align: center;
+	width: 100%;
 }
 
-button {
-	cursor: pointer;
-}
+/* || Details dialog */
 
 dialog {
 	background-color: var(--surface2);
@@ -161,7 +178,7 @@ dialog h2 {
 
 dialog section {
 	margin: var(--space-large);
-	padding: var(--space) 0;
+	padding: var(--space-small) 0;
 }
 
 dialog section > * + * {
@@ -177,12 +194,13 @@ dialog footer {
 dialog footer button {
 	background-color: transparent;
 	border: none;
-	color: var(--text1);
+	color: var(--brand);
 	cursor: pointer;
 	display: inline-block;
 	font-size: initial;
 	padding: var(--space-large);
 	text-align: center;
+	text-decoration: underline;
 	width: 100%;
 }
 
@@ -191,8 +209,11 @@ dialog footer button:active {
 }
 
 dialog p img {
-	max-width: 78vw;
+	max-width: 100%;
+	object-fit: contain;
 }
+
+/* || Cards */
 
 article {
 	background-color: var(--surface2);
@@ -234,25 +255,21 @@ article p input {
 	color: inherit;
 	display: inline-block;
 	height: 100%;
+	text-decoration: none;
+	width: 100%;
+}
+
+article p input, article p img {
 	max-height: 10rem;
 	max-height: calc(15rem * 9 / 16);
 	max-width: 15rem;
-	text-decoration: none;
-	width: 100%;
 }
 
 article p input:active {
 	transform: scale(.98);
 }
 
-body > footer {
-	background-color: var(--surface1);
-	bottom: 0;
-	padding: var(--space-large);
-	position: fixed;
-	text-align: center;
-	width: 100%;
-}
+/* || Skeleton loaders */
 
 progress {
 	animation: animate-progress 1s ease-in-out infinite;

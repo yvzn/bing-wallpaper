@@ -219,9 +219,7 @@ function ModalDialog({ isOpen, onClose, children }) {
 			<form method="dialog">
 				{children}
 				<footer>
-					<button type="submit">
-						<b>Back to image list</b>
-					</button>
+					<button type="submit">Back to image list</button>
 				</footer>
 			</form>
 		</dialog>
@@ -242,12 +240,14 @@ function ImageDetails({ image }) {
 			<h2 lang={lang}>{image?.title}</h2>
 			<section>
 				<p lang={lang}>
-					<img
-						src={image?.lowResolution}
-						alt={image?.title}
-						width="320"
-						height="180"
-					/>
+					<a href={image?.fullResolution} rel="noreferrer noopener">
+						<img
+							src={image?.lowResolution}
+							alt={image?.title}
+							width="320"
+							height="180"
+						/>
+					</a>
 				</p>
 				<p lang={lang}>{image?.copyright}</p>
 				<p>
