@@ -72,8 +72,12 @@ function App() {
 export default App;
 
 function Wallpapers({ images, status, onSelectImage }) {
-	const selectWallpaperCard = (index) => () => {
-		onSelectImage(index);
+	const selectWallpaperCard = (index) => (event) => {
+		if (event.altKey) {
+			window.open(images[index].fullResolution, "_blank");
+		} else {
+			onSelectImage(index);
+		}
 	};
 
 	return (
@@ -102,11 +106,7 @@ const cachedImageProps = PropTypes.shape({
 const loadingStatus = PropTypes.oneOf(["loading", "loaded"]);
 
 Wallpapers.propTypes = {
-	images: PropTypes.arrayOf(
-		PropTypes.shape({
-			image: cachedImageProps,
-		}),
-	).isRequired,
+	images: PropTypes.arrayOf(cachedImageProps).isRequired,
 	status: loadingStatus.isRequired,
 	onSelectImage: PropTypes.func.isRequired,
 };
@@ -239,7 +239,7 @@ function ImageDetails({ image }) {
 		<>
 			<h2 lang={lang}>{image?.title}</h2>
 			<section>
-				<p lang={lang}>
+				<p lang={lang} className="details">
 					<a href={image?.fullResolution} rel="noreferrer noopener">
 						<img
 							src={image?.lowResolution}
