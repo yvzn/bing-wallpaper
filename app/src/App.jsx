@@ -73,7 +73,7 @@ export default App;
 
 function Wallpapers({ images, status, onSelectImage }) {
 	const selectWallpaperCard = (index) => (event) => {
-		if (event.altKey) {
+		if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
 			window.open(images[index].fullResolution, "_blank");
 		} else {
 			onSelectImage(index);
