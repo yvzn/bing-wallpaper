@@ -16,12 +16,11 @@
 
 using System.Threading.Tasks;
 using Azure.Data.Tables;
-using Azure.Storage.Blobs;
 using Microsoft.Azure.Functions.Worker;
 
 namespace Ludeo.BingWallpaper.Function.Cache;
 
-public class InitCache(TableServiceClient tableServiceClient, BlobServiceClient blobServiceClient)
+public class InitCache(TableServiceClient tableServiceClient)
 {
 #if DEBUG
 	[Function("InitImageCache")]
@@ -34,7 +33,6 @@ public class InitCache(TableServiceClient tableServiceClient, BlobServiceClient 
 		await Task.Delay(millisecondsDelay: 5_000);
 
 		await tableServiceClient.CreateTableIfNotExistsAsync("ImageCache");
-		await blobServiceClient.GetBlobContainerClient("$web").CreateIfNotExistsAsync();
 	}
 #endif
 }

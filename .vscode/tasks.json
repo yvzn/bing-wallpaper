@@ -35,7 +35,7 @@
 			"type": "func",
 			"dependsOn": "api build",
 			"options": {
-				"cwd": "${workspaceFolder}/api/src/bin/Debug/net8.0"
+				"cwd": "${workspaceFolder}/api/src/bin/Debug/net9.0"
 			},
 			"command": "host start",
 			"isBackground": true,
@@ -78,11 +78,11 @@
 			"label": "api test",
 			"command": "dotnet",
 			"args": [
-				"test",
+				"test"
 			],
 			"type": "process",
 			"dependsOn": "api build",
-			"problemMatcher":  [],
+			"problemMatcher": [],
 			"options": {
 				"cwd": "${workspaceFolder}/api/test"
 			}

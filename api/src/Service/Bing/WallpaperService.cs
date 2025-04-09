@@ -16,8 +16,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Model.Bing;
@@ -37,14 +39,19 @@ public class WallpaperService(IHttpClientFactory httpClientFactory, ILogger<Wall
 	private async Task<ImageArchive> GetImageArchiveAsync(string market = "en-GB", int imageCount = 1)
 	{
 		var uriBuilder = new UriBuilder(imageArchiveUri);
-		uriBuilder.Query = uriBuilder.Query + $"&mkt={market}&n={imageCount}";
+		uriBuilder.Query += $"&mkt={market}&n={imageCount}";
+
+		using var responseStreamCopy = new MemoryStream();
 
 		try
 		{
 			using var response = await httpClient.GetAsync(uriBuilder.Uri);
-			using var stream = await response.Content.ReadAsStreamAsync();
+			using var responseStream = await response.Content.ReadAsStreamAsync();
 
-			var imageArchive = await JsonSerializer.DeserializeAsync<ImageArchive>(stream, jsonSerializerOptions);
+			await responseStream.CopyToAsync(responseStreamCopy);
+			responseStreamCopy.Seek(0, SeekOrigin.Begin);
+
+			var imageArchive = await JsonSerializer.DeserializeAsync<ImageArchive>(responseStreamCopy, jsonSerializerOptions);
 			if (imageArchive is not null)
 			{
 				return imageArchive;
@@ -55,6 +62,8 @@ public class WallpaperService(IHttpClientFactory httpClientFactory, ILogger<Wall
 		catch (Exception ex)
 		{
 			logger.LogError(ex, "Failed to retrieve image archive for market {ImageArchiveUri}", uriBuilder.Uri);
+			responseStreamCopy.Seek(0, SeekOrigin.Begin);
+			logger.LogError("Image archive content {ImageArchiveUri} : {ResponseStreamCopy}", uriBuilder.Uri, Encoding.UTF8.GetString(responseStreamCopy.ToArray()));
 		}
 		return new ImageArchive();
 	}

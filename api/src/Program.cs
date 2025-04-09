@@ -22,15 +22,11 @@ var host = new HostBuilder()
 				.AddClient<TableClient, TableClientOptions>(
 					(_, _, provider) => provider.GetService<TableServiceClient>()!.GetTableClient("ImageCache"))
 				.WithName("ImageCacheTableClient");
-
-			clientBuilder
-				.AddBlobServiceClient(Environment.GetEnvironmentVariable("WEB_STORAGE_CONNECTION_STRING"));
 		});
 
 		services.AddSingleton<CacheService>();
 		services.AddSingleton<CleanCacheService>();
 		services.AddSingleton<HashingService>();
-		services.AddSingleton<SerializeCacheService>();
 		services.AddSingleton<UpdateCacheService>();
 		services.AddSingleton<WallpaperService>();
 	})
