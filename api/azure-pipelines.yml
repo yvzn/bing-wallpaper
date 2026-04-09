@@ -36,9 +36,10 @@ jobs:
     runOnce:
       deploy:
         steps:
-        - task: AzureFunctionApp@1
+        - task: AzureFunctionApp@2
           inputs:
-            azureSubscription: '$(azureSubscription)'
+            connectedServiceNameARM: '$(azureSubscription)'
             appType: 'functionAppLinux'
+            isFlexConsumption: true
             appName: '$(functionAppName)'
             package: '$(Pipeline.Workspace)/api/*.zip'
