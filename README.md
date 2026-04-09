@@ -4,7 +4,7 @@ A web application to display the latest wallpapers from [Bing.com](https://www.b
 
 **Use of these images is restricted to wallpaper only**, as per Bing terms of use.
 
-⇒ [Demo here](https://bingwallpaper.azureedge.net/)
+⇒ [Demo here](https://ludeo.net/bing-wallpaper/)
 
 ## How?
 
