@@ -37,6 +37,7 @@ jobs:
         with:
           node-version: 24
           cache: 'npm'
+          cache-dependency-path: 'app'
       - name: 'build .env.production file'
         shell: bash
         run: ./build-env-production.sh $API_URL
