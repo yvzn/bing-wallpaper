@@ -8,9 +8,10 @@ env:
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ['main']
+    branches:
+      - 'main'
     paths:
-      - app
+      - 'app/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
