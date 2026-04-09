@@ -24,7 +24,7 @@ jobs:
       arguments: '--configuration Release'
   - task: PublishPipelineArtifact@1
     inputs:
-      targetPath: 'api/src/bin/Release/net9.0/publish.zip'
+      targetPath: 'api/src/bin/Release/net10.0/publish.zip'
       publishLocation: 'pipeline'
       artifact: 'api'
 
@@ -42,4 +42,3 @@ jobs:
             appType: 'functionAppLinux'
             appName: '$(functionAppName)'
             package: '$(Pipeline.Workspace)/api/*.zip'
-            runtimeStack: 'DOTNET-ISOLATED|9.0'

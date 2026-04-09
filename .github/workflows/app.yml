@@ -3,7 +3,7 @@
 name: Deploy static content to Pages
 
 env:
-  API_URL: 'https://wallpaper20.azurewebsites.net'
+  API_URL: 'https://wallpaper21.azurewebsites.net'
 
 on:
   # Runs on pushes targeting the default branch
