@@ -16,7 +16,7 @@ var host = new HostBuilder()
 		services.AddAzureClients(clientBuilder =>
 		{
 			clientBuilder
-				.AddTableServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
+				.AddTableServiceClient(Environment.GetEnvironmentVariable("IMAGE_CACHE_CONNECTION_STRING"));
 
 			clientBuilder
 				.AddClient<TableClient, TableClientOptions>(
