@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="description" content="Bing Wallpaper service URL changed" />
+	<title>Bing Wallpapers - Our Service Has Moved</title>
+	<style>
+		* {
+			box-sizing: border-box;
+			font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+			margin: 0;
+			padding: 0;
+		}
+
+		:root {
+			--space: 10px;
+			--space-large: 20px;
+			--brand: hsl(199 100% 29%);
+			--text1: hsl(199 100% 10%);
+			--surface1: hsl(199 25% 90%);
+			--surface2: hsl(199 20% 99%);
+			--surface4: hsl(199 20% 85%);
+			--surface-shadow: 199 10% 6%;
+			--shadow-strength: 0.08;
+			--rad-shadow: 0 2.8px 2.2px hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.03)),
+				0 6.7px 5.3px hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.01)),
+				0 12.5px 10px hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.02)),
+				0 22.3px 17.9px hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.02));
+		}
+
+		body {
+			background-color: var(--surface2);
+			color: var(--text1);
+			min-height: 100vh;
+			display: grid;
+			grid-template-rows: auto 1fr auto;
+		}
+
+		header {
+			background-color: var(--surface4);
+			color: var(--brand);
+			padding: var(--space-large);
+			text-align: center;
+		}
+
+		header h1 {
+			font-family: Cambria, "Hoefler Text", Utopia, "Liberation Serif", "Nimbus Roman No9 L Regular", Times, "Times New Roman", serif;
+		}
+
+		main {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: var(--space-large);
+		}
+
+		article {
+			background-color: var(--surface2);
+			border-radius: var(--space);
+			box-shadow: var(--rad-shadow);
+			max-width: 44rem;
+			padding: calc(var(--space-large) * 1.5);
+			text-align: center;
+			width: 100%;
+		}
+
+		h2 {
+			color: var(--brand);
+			font-size: 1.5rem;
+			margin-bottom: var(--space-large);
+		}
+
+		p {
+			line-height: 1.5;
+		}
+
+		p + p {
+			margin-top: var(--space-large);
+		}
+
+		a {
+			color: var(--brand);
+			font-weight: 700;
+			overflow-wrap: anywhere;
+		}
+
+		footer {
+			background-color: var(--surface1);
+			padding: var(--space-large);
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1>Bing Wallpapers!</h1>
+	</header>
+	<main>
+		<article>
+			<h2>Our service has moved!</h2>
+			<p>The address of this service has changed. Please use the new address below:</p>
+			<p>
+				<a href="https://ludeo.net/bing-wallpaper/" rel="noreferrer noopener">
+					https://ludeo.net/bing-wallpaper/
+				</a>
+			</p>
+		</article>
+	</main>
+	<footer>
+		<p>Do not forget to update your bookmarks!</p>
+	</footer>
+</body>
+
+</html>
