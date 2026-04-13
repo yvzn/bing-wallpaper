@@ -24,7 +24,6 @@
 				"/consoleloggerparameters:NoSummary"
 			],
 			"type": "process",
-			//"dependsOn": "api clean",
 			"group": "build",
 			"problemMatcher": "$msCompile",
 			"options": {
@@ -35,7 +34,7 @@
 			"type": "func",
 			"dependsOn": "api build",
 			"options": {
-				"cwd": "${workspaceFolder}/api/src/bin/Debug/net9.0"
+				"cwd": "${workspaceFolder}/api/src/bin/Debug/net10.0"
 			},
 			"command": "host start",
 			"isBackground": true,
