@@ -18,25 +18,23 @@ using System.Threading.Tasks;
 using Ludeo.BingWallpaper.Model.Cache;
 using Ludeo.BingWallpaper.Service.Bing;
 using Ludeo.BingWallpaper.Service.Cache;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 
 namespace Ludeo.BingWallpaper.Function.Cache;
 
-public class UpdateCache(WallpaperService wallpaperService, HashingService hashingService, UpdateCacheService updateCacheService)
+public class UpdateCache(
+	WallpaperService wallpaperService,
+	HashingService hashingService,
+	UpdateCacheService updateCacheService,
+	CleanCacheService cleanCacheService)
 {
-	[Function("UpdateImageCache")]
-	public async Task RunAsync(
-		[TimerTrigger("0 0 1 * * *"
-#if DEBUG
-			, RunOnStartup=true
-#endif
-		)]
-		TimerInfo timerInfo)
+	[Function("RefreshImageCache")]
+	public async Task<IActionResult> RunAsync(
+		[HttpTrigger(AuthorizationLevel.Function, "post", Route = "cache/refresh")]
+		HttpRequest req)
 	{
-#if DEBUG
-		await Task.Delay(millisecondsDelay: 10_000);
-#endif
-
 		var imageArchives = await wallpaperService.GetImageArchivesAsync();
 
 		var imagesToCache = Mapper.Map(imageArchives);
@@ -44,5 +42,9 @@ public class UpdateCache(WallpaperService wallpaperService, HashingService hashi
 		var imagesToCacheWithHash = await hashingService.HashAsync(imagesToCache);
 
 		await updateCacheService.UpdateAsync(imagesToCacheWithHash);
+		await cleanCacheService.RemoveDuplicatesAsync();
+		await cleanCacheService.CleanOldestAsync();
+
+		return new NoContentResult();
 	}
 }
