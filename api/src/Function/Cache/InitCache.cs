@@ -16,23 +16,22 @@
 
 using System.Threading.Tasks;
 using Azure.Data.Tables;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 
 namespace Ludeo.BingWallpaper.Function.Cache;
 
+#if DEBUG
 public class InitCache(TableServiceClient tableServiceClient)
 {
-#if DEBUG
 	[Function("InitImageCache")]
-	public async Task RunAsync(
-		[TimerTrigger("0 0 1 * * *"
-			, RunOnStartup=true
-		)]
-		TimerInfo timerInfo)
+	public async Task<IActionResult> RunAsync(
+		[HttpTrigger(AuthorizationLevel.Function, "post", Route = "cache/init")]
+		HttpRequest req)
 	{
-		await Task.Delay(millisecondsDelay: 5_000);
-
 		await tableServiceClient.CreateTableIfNotExistsAsync("ImageCache");
+		return new NoContentResult();
 	}
-#endif
 }
+#endif

@@ -67,7 +67,7 @@ npm run dev
 
 #### Configuration
 
-The storage connection string has to be configured in the `AzureWebJobsStorage` setting:
+Configure the storage connection string in both `AzureWebJobsStorage` and `IMAGE_CACHE_CONNECTION_STRING`:
 - Use the connection string from the storage account of the deployed *Azure Function App*
 - For the local database set the connection string to `UseDevelopmentStorage=true`
 
@@ -82,6 +82,16 @@ func host start
 ```
 
 Then open http://localhost:7071/api/redirection-to/latest in browser of choice.
+
+In a DEBUG build, initialize and refresh the cache manually after starting the host:
+
+```bash
+curl -X POST http://localhost:7071/api/cache/init
+curl -X POST http://localhost:7071/api/cache/refresh
+```
+
+Function authorization is normally disabled by Azure Functions Core Tools locally.
+When authorization is enabled, supply a function or host key in the `x-functions-key` header.
 
 <kbd>Ctrl + C</kbd> to stop the app.
 
@@ -131,6 +141,7 @@ Then upload the files in `bin/Release/net8.0` folder to the *Function app*
 Pipeline definitions are provided for integration in [Azure DevOps](https://dev.azure.com)
 - `app/azure-pipelines.yml` for the front-end
 - `api/azure-pipelines.yml` for the back-end
+- `api/azure-pipelines-cache.yml` to refresh the image cache daily at 01:00 UTC
 
 #### Requirements
 
@@ -139,6 +150,7 @@ Create a *variable group* named `Azure` in *Azure DevOps' pipelines*.
 Add the following variables:
 - `azureSubscription` : Name of the *subscription* to deploy to
 - `functionAppName`: Name of the *Function app*
+- `functionAppKey`: A function key for `RefreshImageCache` or a host key; store it as a secret variable
 - `storageAccountName`: Name of the *storage account*
 - `storageAccountKey`: Key for the *storage account*
 - `apiUrl`: base URL of the *Function app*
@@ -150,7 +162,9 @@ Make sure your *Azure DevOps principal* has write access to the *storage account
 
 Create an *environment* named `Azure` in *Azure DevOps' pipelines*.
 
-Setup two pipelines using the yaml files. On the first run, Azure DevOps will require a manual validation for each pipeline to access the *variable group* and *environment*.
+Set up the pipelines using the YAML files. On the first run, Azure DevOps will require a manual validation for each pipeline to access the *variable group* and, where applicable, the *environment*. The cache pipeline must be created and authorized before its schedule can run. It calls the function app's default `azurewebsites.net` hostname.
+
+The authenticated `POST /api/cache/refresh` endpoint fetches and caches images, then removes duplicates and old entries. It can also be called manually with the `x-functions-key` header. The DEBUG-only `POST /api/cache/init` endpoint creates the cache table; there is no initialization pipeline.
 
 ## License
 

@@ -1,0 +1,37 @@
+variables:
+- group: "Azure"
+
+trigger: none
+pr: none
+
+schedules:
+- cron: "0 1 * * *"
+  displayName: Daily image cache refresh
+  branches:
+    include:
+    - main
+  always: true
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- bash: |
+    set -euo pipefail
+
+    if [[ ! "$FUNCTION_APP_NAME" =~ ^[a-zA-Z0-9-]+$ || -z "$FUNCTION_APP_KEY" ]]; then
+      echo "A valid functionAppName and functionAppKey are required." >&2
+      exit 1
+    fi
+
+    status=$(printf 'header = "x-functions-key: %s"\n' "$FUNCTION_APP_KEY" |
+      curl --config - --silent --show-error --fail --output /dev/null --write-out '%{http_code}' \
+        --request POST "https://${FUNCTION_APP_NAME}.azurewebsites.net/api/cache/refresh")
+    if [[ "$status" != 2* ]]; then
+      echo "Cache refresh returned HTTP $status." >&2
+      exit 1
+    fi
+  displayName: Refresh image cache
+  env:
+    FUNCTION_APP_NAME: $(functionAppName)
+    FUNCTION_APP_KEY: $(functionAppKey)
